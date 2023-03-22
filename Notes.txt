@@ -70,3 +70,5 @@ Lemma 1.2: Esiste un algoritmo LowDiamDecomposition(G, D) tale che:
     - ogni SCC di G\E^rem ha "weak diameter" <= D
     - per ogni arco e in E, la probabilita' che e appartenga ad E^rem e' O((w(e)*log^2(n)/D)+n^(-10))
 - L'algoritmo esegua in O(mlog^2(n) + nlog^3(n))
+
+Algoritmo: https://raw.githubusercontent.com/CawaAlreadyTaken/Tesi_SSSP_negative_weights/main/LowDiameterDecomposition.png
