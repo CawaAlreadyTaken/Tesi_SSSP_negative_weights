@@ -95,8 +95,8 @@ Se c'e' almeno un ciclo di peso negativo per qualche percorso da u a v, diciamo 
 _Supponiamo che esista un algoritmo per il Teorema 1.1 per il caso speciale in cui, nel grafo G<sub>in</sub>:_
 * $w(e) >= -1 \forall e \in E$
 * _Ogni vertice in G<sub>in</sub> abbia out-degree costante_  
-_Con tempo di esecuzione T(m, n)_
-_Allora, esiste un algoritmo come nel Teorema 1.1  per ogni grafo in input G<sub>in</sub> con pesi interi con tempo di esecuzione O(T(m, m) log(W<sub>G<sub>in</sub></sub>))
+_Con tempo di esecuzione T(m, n)_  
+_Allora, esiste un algoritmo come nel Teorema 1.1  per ogni grafo in input G<sub>in</sub> con pesi interi con tempo di esecuzione O(T(m, m) log(W<sub>G<sub>in</sub></sub>))_
 
 **Dimostrazione**
 Si consideri il primo punto, ovvero che w<sub>in</sub> >= -1. Lo "scaling framework" di Goldberg dimostra che l'esistenza di un algoritmo per questo caso implica l'esistenza di un algoritmo per ogni grafo con pesi interi al costo di un fattore log(W<sub>G</sub>) extra.  
