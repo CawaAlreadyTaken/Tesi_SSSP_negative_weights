@@ -5,43 +5,44 @@ Algoritmo (2): MFMCF (Maximum Flow and Minimum-Cost Flow)
 
 (2) E' un algoritmo che calcola esattamente il flusso massimo ed il flusso di costo minimo su grafi direzionati con costi, capacita' minima e massima interi e limitati polinomialmente in tempo O(m^(1+o(1)))
 
-_Near Linear Time (1):
-Una funzione f:N->N e' "near linear" se f(n) appartiene agli O(n^(1+eps)) per ogni eps>0
-Quindi n log^k (n) e' near linear.
+**Near Linear Time (1)**:
+_Una funzione f:N->N e' "near linear" se f(n) appartiene agli O(n^(1+eps)) per ogni eps>0
+Quindi n log^k (n) e' near linear._
 
-_Almost Linear Time (2):
-Praticamente la stessa cosa
+**Almost Linear Time (2)**:
+_Praticamente la stessa cosa_
 
-Per NWSSSP, i limiti precedenti erano di O((m+n^1.5)log W) su grafi moderatamente densi e O(m^(4/3+o(1))log W) su grafi sparsi, da algoritmi trovati entrambi nel 2020.
+Per NWSSSP, i limiti precedenti erano di O((m+n^(1.5))log W) su grafi moderatamente densi e O(m^(4/3+o(1)) log W) su grafi sparsi, da algoritmi trovati entrambi nel 2020.
 
-Prima di questo (1) algoritmo, esistevano gia' (dal 2001) degli algoritmi near-linear ma solo per il caso particolare di grafi planari direzionati (O(n log^2(n)/(log log n))).
+Prima di questo (1) algoritmo, esistevano gia' (dal 2001) degli algoritmi near-linear ma solo per il caso particolare di grafi planari direzionati, in O(n log^2(n)/(log log n)).
 
-_Grafo planare:
-Nella teoria dei grafi si definisce grafo planare un grafo che può essere raffigurato in un piano in modo che non si abbiano archi che si intersecano
-(Curva di Jordan?)
+**Grafo planare**:
+_Nella teoria dei grafi si definisce grafo planare un grafo che può essere raffigurato in un piano in modo che non si abbiano archi che si intersecano
+(Curva di Jordan?)_
 
-I recenti algoritmi precedenti si basavano su metodi sofisticati di ottimizzazione continua. Questo algoritmo usa invece la "graph decomposition" e strumenti di combinatoria. Di fatto, e' il primo algoritmo combinatorio per NWSSSP che va sotto il limite O(m sqrt(n) log W) di Gabow e Tarjan del 1989.
+I recenti algoritmi precedenti si basavano su metodi sofisticati di ottimizzazione continua. Questo algoritmo usa invece la "graph decomposition" e strumenti di combinatoria. E' il primo algoritmo combinatorio per NWSSSP che va sotto il limite O(m sqrt(n) log W) di Gabow e Tarjan del 1989.
 
-_Algoritmo combinatorio:
-Algoritmo che risolve un problema combinatorio, che consiste nel trovare un oggetto ottimo da un insieme finito di oggetti, dove l'insieme di soluzioni possibile e' discreto o puo' essere ridotto ad un insieme discreto.
+**Algoritmo combinatorio**:
+_Algoritmo che risolve un problema combinatorio, che consiste nel trovare un oggetto ottimo da un insieme finito di oggetti, dove l'insieme di soluzioni possibile e' discreto o puo' essere ridotto ad un insieme discreto._
 
 Notazione:
-m: numero di archi
-n: numero di vertici
-G(V, E, w): grafo con insieme V di vertici, E di archi e pesi interi w per ogni arco e in E.
-s: vertice di partenza appartenente a V
-dist_G(s,v): distanza minima nel grafo da s a v con s e v appartenenti a V
-W: minimo intero >= 2 tale che w(e) >= -W per ogni e in E. Sostanzialmente il valore assoluto del peso minore tra gli archi.
 
-Problema: trovare la distanza minima da s a v per ogni v in V.
-Dijkstra funziona solo per archi con pesi non negativi. 
-Bellman-Ford fornisce una soluzione per questo problema: se c'e' un ciclo negativo lo trova, altrimenti ritorna dist_G(s,v) per ogni vertice in V. Tuttavia, esegue in O(mn)
+**m**: numero di archi  
+**n**: numero di vertici  
+**G(V, E, w)**: grafo con insieme V di vertici, E di archi e pesi interi w per ogni arco e in E.  
+**s**: vertice di partenza appartenente a V  
+**dist<sub>G(s,v)</sub>**: distanza minima nel grafo da s a v con s e v appartenenti a V  
+**W**: minimo intero >= 2 tale che w(e) >= -W per ogni e in E. Sostanzialmente il valore assoluto del peso minore tra gli archi.  
 
-Contesto:
-dagli anni '50 ci sono stati diversi miglioramenti:
-- Shimbel, Ford, Bellman negli anni '50, O(mn)
-- Gabow, Tarhan, Goldberg negli anni '80 e '90, O(m sqrt(n) logW)
-- Negli ultimi anni ci son stati miglioramenti in algoritmi di ottimizzazione continua che han portato ad algoritmi piu' veloci per i problemi di trasbordo (trasferimento di passeggeri o carichi in cui il percorso puo' includere tappe intermedie) ed i problemi di flusso con costo minimo. Questo ha portato ai limiti di tempo descritti sopra anche per negative-weights SSSP (1).
+Problema: trovare la distanza minima da s a v per ogni v in V.  
+Dijkstra funziona solo per archi con pesi non negativi.   
+Bellman-Ford fornisce una soluzione per questo problema: se c'e' un ciclo negativo lo trova, altrimenti ritorna dist<sub>G(s,v)</sub> per ogni vertice in V. Tuttavia, esegue in O(mn).
+
+Contesto:  
+dagli anni '50 ci sono stati diversi miglioramenti:  
+* Shimbel, Ford, Bellman negli anni '50, O(mn)  
+* Gabow, Tarhan, Goldberg negli anni '80 e '90, O(m sqrt(n) logW)  
+* Negli ultimi anni ci son stati miglioramenti in algoritmi di ottimizzazione continua che han portato ad algoritmi piu' veloci per i problemi di trasbordo (trasferimento di passeggeri o carichi in cui il percorso puo' includere tappe intermedie) ed i problemi di flusso con costo minimo. Questo ha portato ai limiti di tempo descritti sopra anche per negative-weights SSSP (1).  
 
 La ricerca per (1) ha fondamentalmente seguito due domande:
 1-1) Si puo' ottenere un tempo near-linear per la risoluzione del Problema per tutti i tipi di grafi?
