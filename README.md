@@ -112,6 +112,6 @@ _Dato un grafo qualsiasi G = (V, E, w), sia G<sub>s</sub> = (V U {s}, E U {s, v}
 _Per un qualsiasi intero B, sia G<sup>B</sup> = (V, E, w<sup>B</sup>) il grafo ottenuto aggiungendo B a tutti gli archi con pesi negativi in G._  
 _Formalmente, w<sup>B</sup>(e) = w(e)+B per ogni e in E<sup>neg</sup>(G) e w<sup>B</sup>(e) = w(e) per ogni e in E \ E<sup>neg</sup>(G)._
 
-**Definizione 2.4, ($ \eta <sub>G</sub>(v), P<sub>G</sub>(v) $)**:
+**Definizione 2.4,** $(\eta <sub>G</sub>(v), P<sub>G</sub>(v) )$:
 __
 
