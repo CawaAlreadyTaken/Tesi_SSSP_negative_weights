@@ -31,12 +31,12 @@ Notazione:
 **n**: numero di vertici  
 **G(V, E, w)**: grafo con insieme V di vertici, E di archi e pesi interi w per ogni arco e in E.  
 **s**: vertice di partenza appartenente a V  
-**dist<sub>G(s,v)</sub>**: distanza minima nel grafo da s a v con s e v appartenenti a V  
+**dist<sub>G</sub>(s,v)**: distanza minima nel grafo da s a v con s e v appartenenti a V  
 **W**: minimo intero >= 2 tale che w(e) >= -W per ogni e in E. Sostanzialmente il valore assoluto del peso minore tra gli archi.  
 
 Problema: trovare la distanza minima da s a v per ogni v in V.  
 Dijkstra funziona solo per archi con pesi non negativi.   
-Bellman-Ford fornisce una soluzione per questo problema: se c'e' un ciclo negativo lo trova, altrimenti ritorna dist<sub>G(s,v)</sub> per ogni vertice in V. Tuttavia, esegue in O(mn).
+Bellman-Ford fornisce una soluzione per questo problema: se c'e' un ciclo negativo lo trova, altrimenti ritorna dist<sub>G</sub>(s,v) per ogni vertice in V. Tuttavia, esegue in O(mn).
 
 Contesto:  
 dagli anni '50 ci sono stati diversi miglioramenti:  
@@ -88,3 +88,5 @@ Definiamo:
 Dato un qualsiasi insieme di archi S (sottoinsieme di E), definiamo:  
 * $w(S) = \sum_{e \in S} w(e)$
 
+Diciamo che un ciclo C nel grafo G e' di peso negativo se w(C) < 0.  
+Se c'e' almeno un ciclo di peso negativo per qualche percorso da u a v, diciamo che $dist<sub>G</sub>(u, v) = -\inf$
