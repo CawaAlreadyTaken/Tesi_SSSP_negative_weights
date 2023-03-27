@@ -1,20 +1,20 @@
 Algoritmo (1): NWSSSP (Negative-Weight Single-Source Shortesh Path)  
 Algoritmo (2): MFMCF (Maximum Flow and Minimum-Cost Flow)
 
-(1) E' un algoritmo randomizzato che calcola i percorsi minimi da un'unica sorgente in O(m log^8(n) log W) in un grafo con archi con pesi interi e che possono anche essere negativi.
+(1) E' un algoritmo randomizzato che calcola i percorsi minimi da un'unica sorgente in O(m log<sup>8</sup>(n) log W) in un grafo con archi con pesi interi e che possono anche essere negativi.
 
-(2) E' un algoritmo che calcola esattamente il flusso massimo ed il flusso di costo minimo su grafi direzionati con costi, capacita' minima e massima interi e limitati polinomialmente in tempo O(m^(1+o(1)))
+(2) E' un algoritmo che calcola esattamente il flusso massimo ed il flusso di costo minimo su grafi direzionati con costi, capacita' minima e massima interi e limitati polinomialmente in tempo O(m<sup>1+o(1)</sup>)
 
 **Near Linear Time (1)**:
-_Una funzione f:N->N e' "near linear" se f(n) appartiene agli O(n^(1+eps)) per ogni eps>0.
-Quindi n log^k (n) e' near linear._
+_Una funzione f:N->N e' "near linear" se f(n) appartiene agli O(n<sup>1+eps</sup>) per ogni eps>0.
+Quindi n log<sup>k</sup> (n) e' near linear._
 
 **Almost Linear Time (2)**:
 _Praticamente la stessa cosa_
 
-Per NWSSSP, i limiti precedenti erano di O((m+n^(1.5))log W) su grafi moderatamente densi e O(m^(4/3+o(1)) log W) su grafi sparsi, da algoritmi trovati entrambi nel 2020.
+Per NWSSSP, i limiti precedenti erano di O((m+n<sup>1.5</sup>)log W) su grafi moderatamente densi e O(m<sup>4/3+o(1)</sup> log W) su grafi sparsi, da algoritmi trovati entrambi nel 2020.
 
-Prima di questo (1) algoritmo, esistevano gia' (dal 2001) degli algoritmi near-linear ma solo per il caso particolare di grafi planari direzionati, in O(n log^2(n)/(log log n)).
+Prima di questo (1) algoritmo, esistevano gia' (dal 2001) degli algoritmi near-linear ma solo per il caso particolare di grafi planari direzionati, in O(n log<sup>2</sup> (n)/(log log n)).
 
 **Grafo planare**:
 _Nella teoria dei grafi si definisce grafo planare un grafo che può essere raffigurato in un piano in modo che non si abbiano archi che si intersecano
@@ -52,7 +52,7 @@ La seconda domanda riguarda il fatto che ci sia un modo per risolvere il Problem
 
 La tesi punta a risolvere entrambe le domande, presentando un algoritmo combinatorio che riduce il tempo di esecuzione ad essere near-linear.
 
-**Teorema 1.1)** _Esiste un algoritmo randomizzato (Las Vegas) che esegue in O(m log^8(n) log(W)) con alta probabilita' per un grafo G<sub>in</sub> con m archi e nodo di partenza s<sub>in</sub>. Tale algoritmo, o ritorna l'albero dei percorsi minimi da s<sub>in</sub>, oppure ritorna un ciclo negativo._
+**Teorema 1.1)** _Esiste un algoritmo randomizzato (Las Vegas) che esegue in O(m log<sup>8</sup>(n) log(W)) con alta probabilita' per un grafo G<sub>in</sub> con m archi e nodo di partenza s<sub>in</sub>. Tale algoritmo, o ritorna l'albero dei percorsi minimi da s<sub>in</sub>, oppure ritorna un ciclo negativo._
 
 L'algoritmo utilizzato di decomposizione del grafo e' chiamato "Low Diameter Decomposition" e viene studiato fin dagli anni '80. Tale algoritmo funziona con grafi con pesi _non_ negativi, ma puo' essere utilizzato per sviluppare un algoritmo di riduzione scalare per SSSP anche con pesi negativi.
 
@@ -67,9 +67,11 @@ _In una decomposizione, il diametro della stessa e' la distanza massima tra due 
 Una delle funzioni principali e' "LowDiamDecomposition":  
 **Lemma 1.2**: _Esiste un algoritmo LowDiamDecomposition(G, D) tale che:_  
 * in INPUT si abbia un grafo con m-archi, n-vertici, una funzione di pesi non-negativi degli archi e un intero positivo D.  
-* in OUTPUT si abbia un insieme di archi E^rem con le seguenti caratteristiche:  
-    * ogni SCC di G \ E^rem ha "weak diameter" <= D  
-    * per ogni arco e in E, la probabilita' che e appartenga ad E^rem e' O((w(e)*log^2(n)/D)+n^(-10))  
-* L'algoritmo esegua in O(m log^2(n) + n log^3(n))  
+* in OUTPUT si abbia un insieme di archi E<sup>rem</sup> con le seguenti caratteristiche:  
+    * ogni SCC di G \ E<sup>rem</sup> ha "weak diameter" <= D  
+    * per ogni arco e in E, la probabilita' che e appartenga ad E<sup>rem</sup> e' O((w(e)*log<sup>2</sup>(n)/D)+n<sup>-10</sup>)  
+* L'algoritmo esegua in O(m log<sup>2</sup>(n) + n log<sup>3</sup>(n))  
 
 Algoritmo: https://raw.githubusercontent.com/CawaAlreadyTaken/Tesi_SSSP_negative_weights/main/LowDiameterDecomposition.png
+
+
