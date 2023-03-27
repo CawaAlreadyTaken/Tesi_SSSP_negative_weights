@@ -95,18 +95,20 @@ Se c'e' almeno un ciclo di peso negativo per qualche percorso da u a v, diciamo 
 _Supponiamo che esista un algoritmo per il Teorema 1.1 per il caso speciale in cui, nel grafo G<sub>in</sub>:_
 * $w(e) >= -1 \forall e \in E$
 * _Ogni vertice in G<sub>in</sub> abbia out-degree costante_  
+
 _Con tempo di esecuzione T(m, n)_  
 _Allora, esiste un algoritmo come nel Teorema 1.1  per ogni grafo in input G<sub>in</sub> con pesi interi con tempo di esecuzione O(T(m, m) log(W<sub>G<sub>in</sub></sub>))_
 
 **Dimostrazione**
 Si consideri il primo punto, ovvero che w<sub>in</sub> >= -1. Lo "scaling framework" di Goldberg dimostra che l'esistenza di un algoritmo per questo caso implica l'esistenza di un algoritmo per ogni grafo con pesi interi al costo di un fattore log(W<sub>G</sub>) extra.  
-Per il secondo punto, creiamo Theta(out-degree(v)) copie di ogni vertice v, cosi' che ogni copia abbia out-degree costante. Il grafo finale ha O(E) vertici e O(E) archi.
+Per il secondo punto, creiamo Theta(out-degree(v)) copie di ogni vertice v, cosi' che ogni copia abbia out-degree costante.  
+Il grafo finale ha O(E) vertici e O(E) archi.
 
 **Definizione 2.3, (G<sub>s</sub>, w<sub>s</sub>, G<sup>B</sup>, w<sup>B</sup>, G<sup>B</sup><sub>s</sub>, w<sup>B</sup><sub>s</sub>)**:
 _Dato un grafo qualsiasi G = (V, E, w), sia G<sub>s</sub> = (V U {s}, E U {s, v}<sub>$v \in V$</sub>, w<sub>s</sub>) il grafo con una finta sorgente aggiunta, in cui c'e' un arco di peso nullo da s ad ogni v in V e nessun arco entrante in s. G<sub>s</sub> ha un ciclo di peso negativo se e solo se G ce l'ha, e dist<sub>G<sub>s</sub></sub>(s, v) = min<sub>$u \in V$</sub>dist<sub>G</sub>(u, v)._  
 _Per un qualsiasi intero B, sia G<sup>B</sup> = (V, E, w<sup>B</sup>) il grafo ottenuto aggiungendo B a tutti gli archi con pesi negativi in G._  
 _Formalmente, w<sup>B</sup>(e) = w(e)+B per ogni e in E<sup>neg</sup>(G) e w<sup>B</sup>(e) = w(e) per ogni e in E \ E<sup>neg</sup>(G)._
 
-**Definizione 2.4, ($\eta <sub>G</sub>(v), P<sub>G</sub>(v)$)**:
-_Prova_
+**Definizione 2.4, ($ \eta <sub>G</sub>(v), P<sub>G</sub>(v) $)**:
+__
 
