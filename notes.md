@@ -86,5 +86,5 @@ Definiamo:
 * W<sub>G</sub> := max(2, -min<sub>e in E</sub>{w(e)})
 
 Dato un qualsiasi insieme di archi S (sottoinsieme di E), definiamo:  
-* $$w(S) = \sum_{e in S} w(e)$$
+* $w(S) = \sum_{e \in S} w(e)$
 
