@@ -74,4 +74,17 @@ Una delle funzioni principali e' "LowDiamDecomposition":
 
 Algoritmo: https://raw.githubusercontent.com/CawaAlreadyTaken/Tesi_SSSP_negative_weights/main/LowDiameterDecomposition.png
 
+Per comodita', si sceglie di concentrarsi su un algoritmo che ritorna correttamente l'albero delle distanze minime se non c'e' alcun ciclo negativo, altrimenti non garantisce nulla.  
+In seguito si trattera' il caso in cui c'e' un ciclo negativo.  
+
+Il paper non ha puntato ad ottimizzare i fattori di log, ma si potrebbe ad esempio trovare il ciclo negativo direttamente, invece che utilizzare direttamente la riduzione sopra, che in caso di ciclo negativo incontra un fattore O(log<sup>2</sup> n) ulteriore.  
+
+Definiamo:
+* V(G) = V  
+* E(G) = E
+* E<sup>neg</sup>(G) := {e in E | w(e) < 0}.  
+* W<sub>G</sub> := max(2, -min<sub>e in E</sub>{w(e)})
+
+Dato un qualsiasi insieme di archi S (sottoinsieme di E), definiamo:  
+* $$w(S) = \sum_{e in S} w(e)$$
 
