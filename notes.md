@@ -1,4 +1,4 @@
-Algoritmo (1): NWSSSP (Negative-Weight Single-Source Shortesh Path)
+Algoritmo (1): NWSSSP (Negative-Weight Single-Source Shortesh Path)  
 Algoritmo (2): MFMCF (Maximum Flow and Minimum-Cost Flow)
 
 (1) E' un algoritmo randomizzato che calcola i percorsi minimi da un'unica sorgente in O(m log^8(n) log W) in un grafo con archi con pesi interi e che possono anche essere negativi.
@@ -6,7 +6,7 @@ Algoritmo (2): MFMCF (Maximum Flow and Minimum-Cost Flow)
 (2) E' un algoritmo che calcola esattamente il flusso massimo ed il flusso di costo minimo su grafi direzionati con costi, capacita' minima e massima interi e limitati polinomialmente in tempo O(m^(1+o(1)))
 
 **Near Linear Time (1)**:
-_Una funzione f:N->N e' "near linear" se f(n) appartiene agli O(n^(1+eps)) per ogni eps>0
+_Una funzione f:N->N e' "near linear" se f(n) appartiene agli O(n^(1+eps)) per ogni eps>0.
 Quindi n log^k (n) e' near linear._
 
 **Almost Linear Time (2)**:
@@ -44,32 +44,32 @@ dagli anni '50 ci sono stati diversi miglioramenti:
 * Gabow, Tarhan, Goldberg negli anni '80 e '90, O(m sqrt(n) logW)  
 * Negli ultimi anni ci son stati miglioramenti in algoritmi di ottimizzazione continua che han portato ad algoritmi piu' veloci per i problemi di trasbordo (trasferimento di passeggeri o carichi in cui il percorso puo' includere tappe intermedie) ed i problemi di flusso con costo minimo. Questo ha portato ai limiti di tempo descritti sopra anche per negative-weights SSSP (1).  
 
-La ricerca per (1) ha fondamentalmente seguito due domande:
-1-1) Si puo' ottenere un tempo near-linear per la risoluzione del Problema per tutti i tipi di grafi?
-1-2) Possiamo ottenere algoritmi efficienti senza strutture dati complesse?
+La ricerca per (1) ha fondamentalmente seguito due domande:  
+1-1. Si puo' ottenere un tempo near-linear per la risoluzione del Problema per tutti i tipi di grafi?  
+1-2. Possiamo ottenere algoritmi efficienti senza strutture dati complesse?  
 
-La seconda domanda intende se c'e' un modo per risolvere il Problema senza utilizzare metodi sofisticati di ottimizzazione continua e una serie di algoritmi complessi algebrici e sui grafi.
+La seconda domanda riguarda il fatto che ci sia un modo per risolvere il Problema senza utilizzare metodi sofisticati di ottimizzazione continua e una serie di algoritmi complessi algebrici e sui grafi.
 
 La tesi punta a risolvere entrambe le domande, presentando un algoritmo combinatorio che riduce il tempo di esecuzione ad essere near-linear.
 
-Teorema 1.1) Esiste un algoritmo randomizzato (Las Vegas) che esegue in O(m log^8(n) log(W)) con alta probabilita' per un grafo G_in con m archi e nodo di partenza s_in. O ritorna l'albero dei percorsi minimi da s_in, oppure ritorna un ciclo negativo.
+**Teorema 1.1)** _Esiste un algoritmo randomizzato (Las Vegas) che esegue in O(m log^8(n) log(W)) con alta probabilita' per un grafo G<sub>in</sub> con m archi e nodo di partenza s<sub>in</sub>. Tale algoritmo, o ritorna l'albero dei percorsi minimi da s<sub>in</sub>, oppure ritorna un ciclo negativo._
 
-L'algoritmo utilizzato di decomposizione del grafo e' chiamato "Low Diameter Decomposition" e viene studiato fin dagli anni '80. Tale algoritmo funziona con grafi con pesi non negativi, ma puo' essere utilizzato per sviluppare un algoritmo di riduzione scalare per SSSP anche con pesi negativi.
+L'algoritmo utilizzato di decomposizione del grafo e' chiamato "Low Diameter Decomposition" e viene studiato fin dagli anni '80. Tale algoritmo funziona con grafi con pesi _non_ negativi, ma puo' essere utilizzato per sviluppare un algoritmo di riduzione scalare per SSSP anche con pesi negativi.
 
-Per il futuro: La domanda 1-2) riguarda un'ampia gamma di problemi. Il panorama attuale degli algoritmi sui grafi e' che per i problemi fondamentali, compresi quelli che si insegnano in universita' e quelli che si utilizzano di piu' in pratica, lo state-of-the-art delle soluzioni e' un algoritmo complesso per un problema piu' generale di flusso di costo minimo (ad esempio: SSSP con anche archi negativi, bipartite matching, il problema dell'assegnazione, taglio s-t, flusso massimo...)
-Questo suggerisce l'idea di trovare degli algoritmi semplici piu' specifici per tali problemi fondamentali. Il lavoro della tesi sul SSSP con anche archi negativi e' un passo verso questa direzione.
+Per il futuro: La domanda 1-2) riguarda un'ampia gamma di problemi. Il panorama attuale degli algoritmi sui grafi e' che per i problemi fondamentali, compresi quelli che si insegnano in universita' e quelli che si utilizzano di piu' in pratica, lo state-of-the-art delle soluzioni e' un algoritmo complesso per un problema piu' generale di flusso di costo minimo (ad esempio: SSSP con anche archi negativi, bipartite matching, il problema dell'assegnazione, taglio s-t, flusso massimo...)  
+Questo suggerisce l'idea di trovare degli algoritmi semplici piu' specifici per tali problemi fondamentali. Il lavoro della tesi su SSSP con anche archi negativi e' un passo verso questa direzione.
 
 Indipendentemente dall'algoritmo in questione (1), e' stato trovato un algoritmo di ottimizzazione continua nello stesso anno (2022), che e' il (2) e pareggia i limiti di tempo per SSSP con anche pesi negativi come un caso particolare del problema piu' generale che risolve. I due algoritmi sono completamente diversi, e per quanto si sappia non c'e' alcuna sovrapposizione nelle tecniche utilizzate.
 
-_Weak Diameter:
-In una decomposizione, il diametro della stessa e' la distanza massima tra due vertici della decomposizione. Se e' possibile scegliere anche archi non appartenenti alla decomposizione, allora si sta parlando di "weak diameter", altrimenti di "strong diameter"
+**Weak Diameter**:
+_In una decomposizione, il diametro della stessa e' la distanza massima tra due vertici della decomposizione. Se e' possibile scegliere anche archi non appartenenti alla decomposizione, allora si sta parlando di "weak diameter", altrimenti di "strong diameter"_
 
-Una delle funzioni principali e' "LowDiamDecomposition":
-Lemma 1.2: Esiste un algoritmo LowDiamDecomposition(G, D) tale che:
-- in INPUT si abbia un grafo con m-archi, n-vertici, una funzione di pesi non-negativi degli archi e un intero positivo D.
-- in OUTPUT si abbia un insieme di archi E^rem con le seguenti caratteristiche:
-    - ogni SCC di G\E^rem ha "weak diameter" <= D
-    - per ogni arco e in E, la probabilita' che e appartenga ad E^rem e' O((w(e)*log^2(n)/D)+n^(-10))
-- L'algoritmo esegua in O(mlog^2(n) + nlog^3(n))
+Una delle funzioni principali e' "LowDiamDecomposition":  
+**Lemma 1.2**: _Esiste un algoritmo LowDiamDecomposition(G, D) tale che:_  
+* in INPUT si abbia un grafo con m-archi, n-vertici, una funzione di pesi non-negativi degli archi e un intero positivo D.  
+* in OUTPUT si abbia un insieme di archi E^rem con le seguenti caratteristiche:  
+    * ogni SCC di G \ E^rem ha "weak diameter" <= D  
+    * per ogni arco e in E, la probabilita' che e appartenga ad E^rem e' O((w(e)*log^2(n)/D)+n^(-10))  
+* L'algoritmo esegua in O(m log^2(n) + n log^3(n))  
 
 Algoritmo: https://raw.githubusercontent.com/CawaAlreadyTaken/Tesi_SSSP_negative_weights/main/LowDiameterDecomposition.png
