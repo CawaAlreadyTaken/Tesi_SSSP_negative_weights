@@ -1,5 +1,5 @@
 # Tesi NWSSSP
-## _Daniele Cabassi_
+### Author: _Daniele Cabassi_
 
 Algoritmo (1): NWSSSP (Negative-Weight Single-Source Shortesh Path)  
 Algoritmo (2): MFMCF (Maximum Flow and Minimum-Cost Flow)
