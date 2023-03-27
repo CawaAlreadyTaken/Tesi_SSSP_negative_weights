@@ -114,4 +114,5 @@ _Formalmente, w<sup>B</sup>(e) = w(e)+B per ogni e in E<sup>neg</sup>(G) e w<sup
 
 **Definizione 2.4,** $(\eta <sub>G</sub>(v), P<sub>G</sub>(v) )$:
 __
+$\sqrt{3x}$
 
