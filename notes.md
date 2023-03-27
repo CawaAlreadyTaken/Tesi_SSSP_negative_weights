@@ -89,4 +89,4 @@ Dato un qualsiasi insieme di archi S (sottoinsieme di E), definiamo:
 * $w(S) = \sum_{e \in S} w(e)$
 
 Diciamo che un ciclo C nel grafo G e' di peso negativo se w(C) < 0.  
-Se c'e' almeno un ciclo di peso negativo per qualche percorso da u a v, diciamo che dist<sub>G</sub>(u, v) = -$\infty$
+Se c'e' almeno un ciclo di peso negativo per qualche percorso da u a v, diciamo che dist<sub>G</sub>(u, v) = - $$\infty$$
