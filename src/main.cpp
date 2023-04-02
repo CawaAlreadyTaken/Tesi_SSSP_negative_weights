@@ -1,32 +1,7 @@
 #include <bits/stdc++.h> // TODO: use more specific libraries
+#include "graph.h"
 
 using namespace std;
-
-class Graph {
-    int n, m;
-    public:
-    vector<vector<int>> adj;
-    Graph(int n, int m) {
-        this->n = n;
-        this->m = m;
-        this->adj.assign(n, vector<int>());
-    }
-
-    void add_edge(int from, int to) {
-        assert(from < n);
-        assert(to < n);
-        adj[from].push_back(to);
-    }
-};
-
-struct SSSP_Result {
-    bool has_negative_cycle;
-    Graph* shortest_paths_tree;
-};
-
-SSSP_Result sssp(Graph* graph) {
-    // TODO implement this (facile a dirsi, e' praticamente l'intera tesi)
-}
 
 void print_shortest_path_tree(SSSP_Result result) {
     vector<vector<int>> shortest_paths = result.shortest_paths_tree->adj;
@@ -73,5 +48,3 @@ int main() {
         print_shortest_path_tree(sssp_result);
     }
 }
-
-
