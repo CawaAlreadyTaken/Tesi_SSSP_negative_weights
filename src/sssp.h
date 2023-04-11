@@ -15,8 +15,8 @@ class PriceFunction {
 };
 
 PriceFunction scaleDown(Graph* graph, int delta, int B);
-
-PriceFunction elimNeg(Graph* graphA);
+PriceFunction elimNeg(Graph* graph);
+SSSP_Result SPmain(Graph* g_in, int s_in);
 
 #endif
 

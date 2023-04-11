@@ -1,5 +1,6 @@
 #include <bits/stdc++.h> // TODO: use more specific libraries
 #include "graph.h"
+#include "sssp.h"
 
 using namespace std;
 
@@ -15,31 +16,32 @@ void print_shortest_path_tree(SSSP_Result result) {
 }
 
 /* INPUT FORMAT:
-* n m
-* from_0 to_0
-* from_1 to_1
-* from_2 to_2
+* n m s
+* from_0 to_0 weight_0
+* from_1 to_1 weight_1
+* from_2 to_2 weight_2
 * ...
 */
 
 int main() {
     // n: number of vertices
     // m: number of edges
-    int n, m;
-    cin >> n >> m;
+    // s: index of source
+    int n, m, s;
+    cin >> n >> m >> s;
 
     // Create graph with given constraints
     Graph* graph = new Graph(n, m);
 
     // Receive in input all edges
     for (int i = 0; i < m; i++) {
-        int from, to; cin >> from >> to;
-        graph->add_edge(from, to);
+        int from, to, weight; cin >> from >> to >> weight;
+        graph->add_edge(from, to, weight);
     }
 
     // END INPUT
 
-    SSSP_Result sssp_result = sssp(graph);
+    SSSP_Result sssp_result = SPmain(graph, s);
 
     if (sssp_result.has_negative_cycle) {
         // TODO: Maybe print the negative cycle
