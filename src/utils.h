@@ -8,5 +8,7 @@ using namespace std;
 
 int roundB(int b);
 
+SSSP_Result dijkstra(Graph* g, int s);
+
 #endif
 
