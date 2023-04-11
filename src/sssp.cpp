@@ -2,6 +2,10 @@
 #include "graph.h"
 #include "utils.h"
 
+set<int> LDD(Graph* graph, int D) {
+
+}
+
 PriceFunction elimNeg(Graph *graph) {
 
 }
@@ -18,18 +22,55 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
 PriceFunction scaleDown(Graph *graph, int delta, int B) {
     PriceFunction Phi2;
     Graph * graph_B_Phi2 = new Graph(graph->n, graph->m);
+    graph_B_Phi2->adj = graph->adj;
+    // Add B to negative edges TODO check that questo sia davvero da fare prima di applicare la price function
+    for (int i = 0; i < graph->n; i++) {
+        assert(graph->adj[i].size() == graph->weights[i].size());
+        for (int j = 0; j < graph->adj[i].size(); j++) {
+            if (graph->weights[i][j] < 0)
+                graph_B_Phi2->weights[i].push_back(graph->weights[i][j]+B);
+            else
+                graph_B_Phi2->weights[i].push_back(graph->weights[i][j]);
+        }
+    }
 
     if (delta > 2) {
         int d = delta/2;  // TODO check this
-        // phase 0
-        // phase 1
-        // phase 2
+        Graph* graph_B_pos = new Graph(graph->n, graph->m);
+        graph_B_pos->adj = graph->adj;
+        graph_B_pos->weights.resize(graph->n);
+
+        for (int i = 0; i < graph_B_pos->n; i++) {
+            for (int j = 0; j < graph_B_pos->adj[i].size(); j++) {
+                if (graph->weights[i][j] < 0)
+                    graph_B_pos->weights[i].push_back(max(graph->weights[i][j]+B, 0));
+                else
+                    graph_B_pos->weights[i].push_back(graph->weights[i][j]);
+            }
+        }
+
+        // phase 0: Decompose V to SCCs V1, V2... with weak diameter dB in G
+        set<int> Erem = LDD(graph_B_pos, d*B);
+        int SCCs = computeSCCs();
+        // phase 1: Make edges inside the SCCs G^B[V_i] non-negative
+        Graph* H = new Graph();
+        PriceFunction Phi1 = scaleDown(H, delta/2, B);
+        // phase 2: Make all edges in G^B \ E^rem non-negative
+        PriceFunction psi = FixDAGEdges(graph_B_Phi1_rem, SCCs);
+        Phi2 = PriceFunction::sum(Phi1, psi);
+        // Add Phi2 to graph_B_Phi2 (this should be in phase 3 but if phi2 is all 0 we can avoid doing it)
+        for (int i = 0; i < graph_B_Phi2->n; i++) {
+            assert(graph_B_Phi2->adj[i].size() == graph_B_Phi2->weights[i].size());
+            for (int j = 0; j < graph_B_Phi2->weights[i].size(); j++) {
+                graph_B_Phi2->weights[i][j] = graph_B_Phi2->weights[i][j] + Phi2.prices[i] - Phi2.prices[graph_B_Phi2->adj[i][j]];
+            }
+        }
     } else {
-        Phi2.prices.assign(2, 1);
-    }
-    // phase 3
-    PriceFunction psi = elimNeg(graph_B_Phi2);
-    PriceFunction Phi3 = PriceFunction::sum(Phi2, psi);
+    Phi2.prices.assign(graph->n, 0);
+}
+    // phase 3: Make all edges in G^B non-negative
+    PriceFunction psi_first = elimNeg(graph_B_Phi2);
+    PriceFunction Phi3 = PriceFunction::sum(Phi2, psi_first);
 
     return Phi3;
 }
