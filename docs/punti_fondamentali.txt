@@ -27,7 +27,7 @@ Teorema 3.5 (ScaleDown):
 Esiste il seguente algoritmo ScaleDown(G=(V, E, w),delta,B):  # Attenzione, G qualsiasi, non deve rispettare Ass. 2.1
 1) REQUISITI DELL' INPUT:
     (a) B intero positivo, w ritorna interi, w(e) >= -2B per ogni e in E
-    (b) Se il grafo G non contiene un ciclo negativo allora la funzione (definita prima nel paper) eta(G^B) deve essere minore o uguale a delta. Significa che per ogni v in V esiste un percorso piu' breve s->v ha al massimo delta archi negativi.
+    (b) Se il grafo G non contiene un ciclo negativo allora la funzione (definita prima nel paper) eta(G^B) deve essere minore o uguale a delta. Significa che per ogni v in V esiste un percorso piu' breve s->v ha al massimo delta archi negativi. Nota: G^B e' il grafo ottenuto aggiungendo l'intero positivo B a tutti i pesi negativi degli archi di G.
     (c) Tutti i vertici in G hanno out-degree costante
 2) OUTPUT: Se termina, l'algoritmo ritorna una funzione di costo (intera) phi tale che w_phi(e) >= -B per ogni e in E. (w_phi significa applicare la funzione di costo phi ai pesi degli archi (w), come definito sopra nel paper) 
 3) TEMPO DI ESECUZIONE: Se G non contiene un ciclo negativo, allora l'algoritmo ha tempo di esecuzione atteso O(m log^3(n) log(delta)). Se invece contiene un ciclo negativo, non c'e' nessuna certezza che l'algoritmo termini. Se l'algoritmo termina, ritorna sempre l'output corretto.

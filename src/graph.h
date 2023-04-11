@@ -6,8 +6,8 @@
 using namespace std;
 
 class Graph {
-    int n, m;
     public:
+    int n, m;
     vector<vector<int>> adj;
     Graph(int n, int m);
     void add_edge(int from, int to);
