@@ -1,8 +1,19 @@
 #include "utils.h"
 #include "graph.h"
 
+double d_min(double a, double b) {
+    if (a < b)
+        return a;
+    return b;
+}
+
 set<int> getRandomVertices(Graph* g, int k) {
-    // TODO
+    set<int> vertices;
+    while (k--) {
+        int randomIndex = rand() % g->V.size();
+        vertices.insert(g->V[randomIndex]);
+    }
+    return vertices;
 }
 
 int roundB(int b) {

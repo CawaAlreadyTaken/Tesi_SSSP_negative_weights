@@ -57,27 +57,90 @@ set<int> ballOut(Graph* graph, int v, int R) {
 }
 
 set<int> LDD(Graph* graph, int D) {
-    Graph* g0 = new Graph(graph->n, graph->m);
+    // Save a copy of the original graph, since we are going to modify it
+    Graph* g0 = new Graph(graph->V);
     g0->adj = graph->adj;
-    g0->weights = graph->weights;
+    g0->is_edge = graph->is_edge;
+
     set<int> Erem;
     // Phase 1: mark vertices as light or heavy
-    float k = c*ln(3);
+    float k = c*ln(INPUT_N);
     set<int> S = getRandomVertices(graph, k);
-    map<int, set<int>> ballIns;
-    map<int, set<int>> ballOuts;
+    /*
+    map<int, set<int>> sBallIns;
+    map<int, set<int>> sBallOuts;
+    map<int, set<int>> ballInIntersec;
+    map<int, set<int>> ballOutIntersec;
 
-    for (auto x:S) {
-        if (ballIns[x].empty()) {
-            ballIns[x] = ballIn(graph, x, D/4);
-            ballOuts[x] = ballOut(graph, x, D/4);
+    for (auto x : S) {
+        if (sBallIns[x].empty()) {
+            sBallIns[x] = ballIn(graph, x, D/4);
+            sBallOuts[x] = ballOut(graph, x, D/4);
         }
     }
 
-    for (auto x:S) {
-        cout << 1 << endl;
+    for (auto v : graph->V) {
+        for (auto)
+    }
+    */
+
+    map<int, set<int>> ballInIntersec;
+    map<int, set<int>> ballOutIntersec;
+
+    // Da ricontrollare
+    for (int x : S) {
+        set<int> bIn = ballIn(graph, x, D/4);
+        set<int> bOut = ballOut(graph, x, D/4);
+        for (int z : bIn)
+            ballOutIntersec[z].insert(x);
+        for (int z : bOut)
+            ballInIntersec[z].insert(x);
     }
 
+    vector<int> in_light;
+    vector<int> out_light;
+    vector<int> heavy;
+
+    for (int v : graph->V) {
+        if (ballInIntersec[v].size() <= 0.6*k)
+            in_light.push_back(v);
+        else if (ballOutIntersec[v].size() <= 0.6*k)
+            out_light.push_back(v);
+        else
+            heavy.push_back(v);
+    }
+    // Phase 2: Carve out balls until no light vertices remain
+    while (in_light.size()) {
+        int v = in_light.back(); // Check unmarkation
+        double p = d_min(1, 80.0*log2(INPUT_N)/D);
+        int Rv = sampleGeo(p);
+        set<int> newBallIn = ballIn(graph, v, Rv);
+        set<int> Ebound = getBoundariesIn(newBallIn);
+        if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
+            //return Erem = E(G) and terminate
+        }
+        set<int> Erecurs = LDD(induced_graph(graph, newBallIn), D);
+        Erem = intersect(intersect(Erem, Ebound), Erecurs);
+        graph = subtract(graph, newBallIn);
+    }
+
+    while (out_light.size()) {
+        int v = out_light.back(); // Check unmarkation
+        double p = d_min(1, 80.0*log2(INPUT_N)/D);
+        int Rv = sampleGeo(p);
+        set<int> newBallOut = ballOut(graph, v, Rv);
+        set<int> Ebound = getBoundariesOut(newBallOut);
+        if (Rv > D/4 || newBallOut.size() > 0.7*graph->V.size()) {
+            //return Erem = E(G) and terminate
+        }
+        set<int> Erecurs = LDD(induced_graph(graph, newBallOut), D);
+        Erem = intersect(intersect(Erem, Ebound), Erecurs);
+        graph = subtract(graph, newBallOut);
+    }
+
+    // Clean Up: check that remaining vertices  have small weak diameter in initial input graph G0
+    // TODO
+    
     return Erem;
 }
 
