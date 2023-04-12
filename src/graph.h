@@ -5,12 +5,15 @@
 
 using namespace std;
 
+int INPUT_N;
+int MAX_N = 10000;
+
 class Graph {
     public:
-    int n, m;
     vector<vector<int>> adj;
-    vector<vector<int>> weights;
-    Graph(int n, int m);
+    vector<vector<bool>> is_edge;
+    vector<int> V;
+    Graph(vector<int> v);
     void add_edge(int from, int to, int weight);
 };
 

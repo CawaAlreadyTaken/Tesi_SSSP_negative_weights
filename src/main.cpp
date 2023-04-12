@@ -29,9 +29,13 @@ int main() {
     // s: index of source
     int n, m, s;
     cin >> n >> m >> s;
+    INPUT_N = n;
 
     // Create graph with given constraints
-    Graph* graph = new Graph(n, m);
+    vector<int> vertices;
+    for (int i = 0; i < n; i++)
+        vertices.push_back(i);
+    Graph* graph = new Graph(vertices);
 
     // Receive in input all edges
     for (int i = 0; i < m; i++) {

@@ -2,12 +2,86 @@
 #include "graph.h"
 #include "utils.h"
 
-set<int> LDD(Graph* graph, int D) {
+set<int> ballIn(Graph* graph, int v, int R) {
+    // In order to do ballIn, we can reverse the edges and call ballOut
+    Graph* graph_copy = new Graph(graph->V);
+    for (int i : graph->V) {
+        for (int j : graph->V) {
+            if (graph->is_edge[i][j])
+                graph_copy->add_edge(j, i, graph->adj[i][j]);
+        }
+    }
+    return ballOut(graph_copy, v, R);
+}
 
+set<int> ballOut(Graph* graph, int v, int R) {
+    // basically dijkstra in order to find vertices closer than R
+    set<int> ris;
+
+    vector<bool> confirmed(MAX_N, false);
+    confirmed[v] = true;
+    ris.insert(v);
+
+    // TODO: maybe can remove indexFrom
+    priority_queue<pair<int, pair<int, int>>> pq; // <weight*-1, <indexFrom, indexTo>>
+    for (int nodo : graph->V) {
+        if (graph->is_edge[v][nodo])
+            pq.push({graph->adj[v][nodo]*-1, {v, nodo}});
+    }
+
+    while (!pq.empty()) {
+        auto top = pq.top();
+        pq.pop();
+        int weight = top.first*-1;
+        int vertexFrom = top.second.first;
+        int vertexTo = top.second.second;
+
+        if (weight > R) // Difference from dijstra
+            break;
+
+        if (confirmed[vertexTo])
+            continue;
+
+        confirmed[vertexTo] = true;
+        ris.insert(vertexTo);
+
+        for (int nodo : graph->V) {
+            if (graph->is_edge[vertexTo][nodo] && !confirmed[nodo]) {
+                pair<int, pair<int, int>> newNode = {weight*-1, {vertexTo, nodo}};
+                pq.push(newNode);
+            }
+        }
+    }
+
+    return ris;
+}
+
+set<int> LDD(Graph* graph, int D) {
+    Graph* g0 = new Graph(graph->n, graph->m);
+    g0->adj = graph->adj;
+    g0->weights = graph->weights;
+    set<int> Erem;
+    // Phase 1: mark vertices as light or heavy
+    float k = c*ln(3);
+    set<int> S = getRandomVertices(graph, k);
+    map<int, set<int>> ballIns;
+    map<int, set<int>> ballOuts;
+
+    for (auto x:S) {
+        if (ballIns[x].empty()) {
+            ballIns[x] = ballIn(graph, x, D/4);
+            ballOuts[x] = ballOut(graph, x, D/4);
+        }
+    }
+
+    for (auto x:S) {
+        cout << 1 << endl;
+    }
+
+    return Erem;
 }
 
 PriceFunction elimNeg(Graph *graph) {
-
 }
 
 PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
@@ -21,31 +95,32 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
 
 PriceFunction scaleDown(Graph *graph, int delta, int B) {
     PriceFunction Phi2;
-    Graph * graph_B_Phi2 = new Graph(graph->n, graph->m);
+    Graph * graph_B_Phi2 = new Graph(graph->V);
     graph_B_Phi2->adj = graph->adj;
+    graph_B_Phi2->is_edge = graph_B_Phi2->is_edge;
+
     // Add B to negative edges TODO check that questo sia davvero da fare prima di applicare la price function
-    for (int i = 0; i < graph->n; i++) {
-        assert(graph->adj[i].size() == graph->weights[i].size());
-        for (int j = 0; j < graph->adj[i].size(); j++) {
-            if (graph->weights[i][j] < 0)
-                graph_B_Phi2->weights[i].push_back(graph->weights[i][j]+B);
-            else
-                graph_B_Phi2->weights[i].push_back(graph->weights[i][j]);
+    for (int i : graph_B_Phi2->V) {
+        for (int j : graph_B_Phi2->V) {
+            if (graph_B_Phi2->is_edge[i][j]) {
+                if (graph_B_Phi2->adj[i][j] < 0)
+                    graph_B_Phi2->adj[i][j]+=B;
+            }
         }
     }
 
     if (delta > 2) {
         int d = delta/2;  // TODO check this
-        Graph* graph_B_pos = new Graph(graph->n, graph->m);
+        Graph* graph_B_pos = new Graph(graph->V);
         graph_B_pos->adj = graph->adj;
-        graph_B_pos->weights.resize(graph->n);
+        graph_B_pos->is_edge = graph->is_edge;
 
-        for (int i = 0; i < graph_B_pos->n; i++) {
-            for (int j = 0; j < graph_B_pos->adj[i].size(); j++) {
-                if (graph->weights[i][j] < 0)
-                    graph_B_pos->weights[i].push_back(max(graph->weights[i][j]+B, 0));
-                else
-                    graph_B_pos->weights[i].push_back(graph->weights[i][j]);
+        for (int i : graph_B_pos->V) {
+            for (int j : graph_B_pos->V) {
+                if (graph_B_pos->is_edge[i][j]) {
+                    if (graph_B_pos->adj[i][j] < 0)
+                        graph_B_pos->adj[i][j] = max(graph_B_pos->adj[i][j]+B, 0);
+                }
             }
         }
 
@@ -59,15 +134,16 @@ PriceFunction scaleDown(Graph *graph, int delta, int B) {
         PriceFunction psi = FixDAGEdges(graph_B_Phi1_rem, SCCs);
         Phi2 = PriceFunction::sum(Phi1, psi);
         // Add Phi2 to graph_B_Phi2 (this should be in phase 3 but if phi2 is all 0 we can avoid doing it)
-        for (int i = 0; i < graph_B_Phi2->n; i++) {
-            assert(graph_B_Phi2->adj[i].size() == graph_B_Phi2->weights[i].size());
-            for (int j = 0; j < graph_B_Phi2->weights[i].size(); j++) {
-                graph_B_Phi2->weights[i][j] = graph_B_Phi2->weights[i][j] + Phi2.prices[i] - Phi2.prices[graph_B_Phi2->adj[i][j]];
+        for (int i : graph_B_Phi2->V) {
+            for (int j : graph_B_Phi2->V) {
+                if (graph_B_Phi2->is_edge[i][j]) {
+                    graph_B_Phi2->adj[i][j]+=Phi2.prices[i]-Phi2.prices[j];
+                }
             }
         }
     } else {
-    Phi2.prices.assign(graph->n, 0);
-}
+        Phi2.prices.assign(MAX_N, 0);
+    }
     // phase 3: Make all edges in G^B non-negative
     PriceFunction psi_first = elimNeg(graph_B_Phi2);
     PriceFunction Phi3 = PriceFunction::sum(Phi2, psi_first);
@@ -76,47 +152,47 @@ PriceFunction scaleDown(Graph *graph, int delta, int B) {
 }
 
 SSSP_Result SPmain(Graph* g_in, int s_in) {
-    Graph* g_up = new Graph(g_in->n, g_in->m);
-    vector<vector<int>> w_up;
-    w_up.assign(g_in->n, vector<int>());
-    for (int i = 0; i < g_in->n; i++) {
-        for (int weight : g_in->weights[i]) {
-            w_up[i].push_back(weight*2*g_in->n);
+    Graph* g_up = new Graph(g_in->V);
+    g_up->adj = g_in->adj;
+    g_up->is_edge = g_in->is_edge;
+    for (int i : g_up->V) {
+        for (int j: g_up->V) {
+            if (g_up->is_edge[i][j])
+                g_up->adj[i][j]*=2*g_in->V.size();
         }
     }
-    g_up->adj = g_in->adj;
-    g_up->weights = w_up;
 
     // Round B up to nearest power of 2
-    int B = 2*g_in->n;
+    int B = 2*g_in->V.size();
     B = roundB(B);
 
     // Identity price function
     PriceFunction Phi0;
-    Phi0.prices.assign(g_in->n, 0);
+    Phi0.prices.assign(MAX_N, 0);
 
     for (int i = 1; pow(2, i)<=B; i++) {
-        Graph* graph_B_phi0 = new Graph(g_up->n, g_up->m);
+        Graph* graph_B_phi0 = new Graph(g_up->V);
         graph_B_phi0->adj = g_up->adj;
-        graph_B_phi0->weights.resize(g_up->n);
+        graph_B_phi0->is_edge = g_up->is_edge;
         // Apply the price function
-        for (int j = 0; j < g_up->n; j++) {
-            for (int k = 0; k < g_up->weights[j].size(); k++) {
-                graph_B_phi0->weights[j].push_back(g_up->weights[j][k]+Phi0.prices[j]-Phi0.prices[g_up->adj[j][k]]);
+        for (int j : graph_B_phi0->V) {
+            for (int k : graph_B_phi0->V) {
+                if (graph_B_phi0->is_edge[j][k])
+                    graph_B_phi0->adj[j][k] += Phi0.prices[j] - Phi0.prices[k];
             }
         }
         // Call scaleDown function
-        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->n, B/pow(2, i));
+        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i));
         Phi0 = PriceFunction::sum(Phi0, Psi0);
     }
 
-    Graph* g_star = new Graph(g_up->n, g_up->m);
+    Graph* g_star = new Graph(g_up->V);
     g_star->adj = g_up->adj;
-    g_star->weights.assign(g_star->n, vector<int>());
-    for (int i = 0; i < g_up->n; i++) {
-        for (int j = 0; j < g_up->weights[i].size(); j++) {
-            int weight = g_up->weights[i][j];
-            g_star->weights[i].push_back(weight+Phi0.prices[i]-Phi0.prices[g_up->adj[i][j]]+1);
+    g_star->is_edge = g_up->is_edge;
+    for (int j : g_star->V) {
+        for (int k : g_star->V) {
+            if (g_star->is_edge[j][k])
+                g_star->adj[j][k] += Phi0.prices[j] - Phi0.prices[k] + 1;
         }
     }
 
