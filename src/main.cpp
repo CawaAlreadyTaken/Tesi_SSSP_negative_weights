@@ -4,6 +4,8 @@
 
 using namespace std;
 
+int INPUT_N;
+
 void print_shortest_path_tree(SSSP_Result result) {
     vector<vector<int>> shortest_paths = result.shortest_paths_tree->adj;
     for (int i = 0; i < shortest_paths.size(); i++) {
@@ -32,10 +34,10 @@ int main() {
     INPUT_N = n;
 
     // Create graph with given constraints
-    vector<int> vertices;
+    set<int> vertices;
     for (int i = 0; i < n; i++)
-        vertices.push_back(i);
-    Graph* graph = new Graph(vertices);
+        vertices.insert(i);
+    Graph* graph = new Graph(vertices, INPUT_N);
 
     // Receive in input all edges
     for (int i = 0; i < m; i++) {
@@ -45,7 +47,7 @@ int main() {
 
     // END INPUT
 
-    SSSP_Result sssp_result = SPmain(graph, s);
+    SSSP_Result sssp_result = SPmain(graph, s, INPUT_N);
 
     if (sssp_result.has_negative_cycle) {
         // TODO: Maybe print the negative cycle
