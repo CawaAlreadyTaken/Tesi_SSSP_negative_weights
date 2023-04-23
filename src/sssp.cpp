@@ -1,6 +1,7 @@
 #include "sssp.h"
 #include "graph.h"
 #include "utils.h"
+#include <cstdint>
 #include <random>
 
 pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R, int INPUT_N) {
@@ -24,7 +25,6 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPU
     confirmed[v] = true;
     ris.insert(v);
 
-    // TODO: maybe can remove indexFrom
     priority_queue<pair<int, pair<int, int>>> pq; // <weight*-1, <indexFrom, indexTo>>
     for (int nodo : graph->V) {
         if (graph->is_edge[v][nodo])
@@ -149,8 +149,60 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
     return Erem;
 }
 
-PriceFunction elimNeg(Graph *graph) {
-    // TODO
+PriceFunction elimNeg(Graph *graph, int s, int INPUT_N) {
+
+    set<pair<int, int>> e = fromMatrixToSet(graph->is_edge);
+    set<pair<int, int>> eNeg;
+    for (int v:graph->V) {
+        for (int u:graph->V) {
+            if (graph->is_edge[v][u]) {
+                eNeg.insert({v, u});
+            }
+        }
+    }
+    set<pair<int, int>> e_minus_eNeg = edgesMinusEdges(e, eNeg);
+
+    vector<int> prices(INPUT_N, 0);
+    for (int v:graph->V) {
+        prices[v] = INT32_MAX;
+    }
+    prices[s] = 0;
+    priority_queue<pair<int, int>> Q;
+    Q.push({0, s});
+    set<int> marked;
+    while (!Q.empty()) {
+        while (!Q.empty()) {
+            int v = Q.top().second;
+            int d = -Q.top().first;
+            Q.pop();
+            if (prices[v] != d)
+                continue;
+            marked.insert(v);
+            for (pair<int, int> edge : e_minus_eNeg) {
+                if (d + graph->adj[edge.first][edge.second] < prices[edge.second]) {
+                    Q.push({-prices[edge.second], edge.second});
+                    prices[edge.second] = d + graph->adj[edge.first][edge.second];
+                }
+            }
+        }
+
+        for (int v : marked) {
+            for (pair<int, int> edge : eNeg) {
+                if (prices[edge.first] + graph->adj[edge.first][edge.second] < prices[edge.second]) {
+                    Q.push({-prices[edge.second], edge.second});
+                    prices[edge.second] = prices[edge.first] + graph->adj[edge.first][edge.second];
+                }
+            }
+        }
+    }
+
+    PriceFunction result;
+    result.prices = prices;
+    // DEBUG 
+    for (int i = 0; i < result.prices.size(); i++) {
+        assert(result.prices[i] != INT32_MAX);
+    }
+    return result;
 }
 
 PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
@@ -162,11 +214,11 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
     return c;
 }
 
-PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
+PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
     PriceFunction Phi2;
     Graph * graph_B_Phi2;
     if (delta > 2) {
-        int d = delta/2;  // TODO check this
+        int d = delta/2;
         Graph* graph_B_pos = new Graph(graph->V, INPUT_N);
         graph_B_pos->adj = graph->adj;
         graph_B_pos->is_edge = graph->is_edge;
@@ -192,7 +244,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
                 continue;
             H = mergeGraphs(H, induced_graph(graph, SCC, INPUT_N), INPUT_N);
         }
-        PriceFunction Phi1 = scaleDown(H, delta/2, B, INPUT_N);
+        PriceFunction Phi1 = scaleDown(H, delta/2, B, s, INPUT_N);
         // phase 2: Make all edges in G^B \ E^rem non-negative
         Graph* graph_B_Phi1 = applyPriceFunction(graph_B, Phi1, INPUT_N);
         Graph* graph_B_Phi1_rem = subtractEdges(graph_B_Phi1, Erem, INPUT_N);
@@ -203,7 +255,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
     }
     // phase 3: Make all edges in G^B non-negative
     graph_B_Phi2 = applyPriceFunction(addIntegerToEdges(graph, B, INPUT_N), Phi2, INPUT_N);
-    PriceFunction psi_first = elimNeg(graph_B_Phi2);
+    PriceFunction psi_first = elimNeg(graph_B_Phi2, s, INPUT_N);
     PriceFunction Phi3 = PriceFunction::sum(Phi2, psi_first);
 
     return Phi3;
@@ -240,7 +292,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
             }
         }
         // Call scaleDown function
-        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), INPUT_N);
+        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), s_in, INPUT_N);
         Phi0 = PriceFunction::sum(Phi0, Psi0);
     }
 

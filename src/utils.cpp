@@ -56,7 +56,7 @@ SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
     vector<bool> confirmed(INPUT_N, false);
     confirmed[s] = true;
 
-    // TODO maybe remove this?
+    // DEBUG
     vector<int> distances(INPUT_N);
     distances[s] = 0;
 
@@ -289,4 +289,13 @@ void DFSaddComp(Graph* g, int v, vector<bool>& visited, set<int>& component) {
             DFSaddComp(g, i, visited, component);
         }
     }
+}
+
+set<pair<int, int>> edgesMinusEdges(set<pair<int, int>> a, set<pair<int, int>> b) {
+    set<pair<int, int>> result;
+    for (auto i:a) {
+        if (b.find(i) == b.end())
+            result.insert(i);
+    }
+    return result;
 }
