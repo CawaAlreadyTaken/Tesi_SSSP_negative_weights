@@ -1,9 +1,14 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <bits/stdc++.h> // TODO: use more specific libraries
 #include "graph.h"
 #include "sssp.h"
+
+#include <stack>
+#include <random>
+#include <map>
+#include <cassert>
+#include <queue>
 
 using namespace std;
 

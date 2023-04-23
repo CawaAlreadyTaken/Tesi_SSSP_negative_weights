@@ -1,7 +1,6 @@
 #ifndef SSSP_H
 #define SSSP_H
 
-#include <bits/stdc++.h> // TODO: use more specific libraries
 #include "graph.h"
 
 using namespace std;

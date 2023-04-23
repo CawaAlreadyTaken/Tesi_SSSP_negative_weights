@@ -1,7 +1,8 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <bits/stdc++.h> // TODO: use more specific libraries
+#include <vector>
+#include <set>
 
 using namespace std;
 
