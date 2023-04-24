@@ -248,7 +248,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
         // phase 2: Make all edges in G^B \ E^rem non-negative
         Graph* graph_B_Phi1 = applyPriceFunction(graph_B, Phi1, INPUT_N);
         Graph* graph_B_Phi1_rem = subtractEdges(graph_B_Phi1, Erem, INPUT_N);
-        PriceFunction psi = FixDAGEdges(graph_B_Phi1_rem, SCCs);
+        PriceFunction psi = FixDAGEdges(graph_B_Phi1_rem, SCCs, INPUT_N);
         Phi2 = PriceFunction::sum(Phi1, psi);
     } else {
         Phi2.prices.assign(INPUT_N, 0);
@@ -310,8 +310,43 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
     return result;
 }
 
-PriceFunction FixDAGEdges(Graph* graph, vector<set<int>> SCCs) {
+PriceFunction FixDAGEdges(Graph* graph, vector<set<int>> SCCs, int INPUT_N) {
     PriceFunction Phi;
-    // TODO
+    Phi.prices.assign(INPUT_N, 0);
+    // Sort SCCs vector in topological order
+    vector<int> old_fromVertixToSCC(INPUT_N, -1);
+    for (int i = 0; i < SCCs.size(); i++) {
+        for (int v : SCCs[i]) {
+            old_fromVertixToSCC[v] = i;
+        }
+    }
+    vector<set<int>> SCCs_topo = topologicalSort(SCCs, graph, old_fromVertixToSCC);
+
+    vector<int> fromVertixToSCC(INPUT_N, -1);
+    for (int i = 0; i < SCCs_topo.size(); i++) {
+        for (int v : SCCs_topo[i]) {
+            fromVertixToSCC[v] = i;
+        }
+    }
+
+    vector<int> mu_j(SCCs_topo.size(), 0);
+    for (int v : graph->V) {
+        for (int w : graph->V) {
+            if (graph->is_edge[v][w] && graph->adj[v][w] < 0) {
+                if (fromVertixToSCC[v] != fromVertixToSCC[w]) {
+                    mu_j[fromVertixToSCC[w]] = min(mu_j[fromVertixToSCC[w]], graph->adj[v][w]);
+                }
+            }
+        }
+    }
+
+    int mLast = 0;
+    for (int j = 1; j < SCCs_topo.size(); j++) {
+        mLast += mu_j[j];
+        for (int v : SCCs_topo[j]) {
+            Phi.prices[v] = mLast;
+        }
+    }
+
     return Phi;
 }

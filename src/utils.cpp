@@ -299,3 +299,41 @@ set<pair<int, int>> edgesMinusEdges(set<pair<int, int>> a, set<pair<int, int>> b
     }
     return result;
 }
+
+vector<set<int>> topologicalSort(vector<set<int>> SCCs, Graph* graph, vector<int> fromVertixToSCC) {
+
+    vector<vector<int>> sccAdj(SCCs.size(), vector<int>());
+    for (int v : graph->V) {
+        for (int w : graph->V) {
+            if (graph->is_edge[v][w] && fromVertixToSCC[v] != fromVertixToSCC[w]) {
+                sccAdj[fromVertixToSCC[v]].push_back(fromVertixToSCC[w]);
+            }
+        }
+    }
+
+    stack<int> s;
+    vector<set<int>> result;
+    vector<bool> visited(SCCs.size(), false);
+
+    for (int i = 0; i < SCCs.size(); i++) {
+        if (!visited[i])
+            topoDFS(i, visited, s, sccAdj);
+    }
+
+    while (!s.empty()) {
+        result.push_back(SCCs[s.top()]);
+        s.pop();
+    }
+    return result;
+}
+
+void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>>& sccAdj) {
+    visited[index] = true;
+    
+    for (int k : sccAdj[index]) {
+        if (!visited[k])
+            topoDFS(k, visited, s, sccAdj);
+    }
+
+    s.push(index);
+}

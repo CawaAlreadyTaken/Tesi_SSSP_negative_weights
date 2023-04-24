@@ -18,7 +18,7 @@ PriceFunction elimNeg(Graph* graph, int s, int INPUT_N);
 set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N);
 pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPUT_N, bool fromBallIn=false);
 pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R, int INPUT_N);
-PriceFunction FixDAGEdges(Graph* g, vector<set<int>> v);
+PriceFunction FixDAGEdges(Graph* g, vector<set<int>> v, int INPUT_N);
 
 #endif
 

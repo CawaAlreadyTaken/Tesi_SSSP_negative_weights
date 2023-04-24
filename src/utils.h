@@ -30,5 +30,7 @@ vector<set<int>> computeSCCs(Graph* g, int INPUT_N);
 Graph* transpose(Graph* g, int INPUT_N);
 void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s);
 void DFSaddComp(Graph* g, int v, vector<bool>& visited, set<int>& component);
+vector<set<int>> topologicalSort(vector<set<int>> SCCs, Graph* graph, vector<int> fromVertixToSCC);
+void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>>& sccAdj);
 
 #endif
