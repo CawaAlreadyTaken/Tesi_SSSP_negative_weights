@@ -65,14 +65,21 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPU
 }
 
 set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
+    cout << "[DEBUG] Entering LDD..." << endl;
     // Save a copy of the original graph, since we are going to modify it
     Graph* g0 = new Graph(graph->V, INPUT_N);
     g0->adj = graph->adj;
     g0->is_edge = graph->is_edge;
+    for (int i : graph->V) {
+        for (int j : graph->V) {
+            if (graph->is_edge[i][j])
+                cout << "[DEBUG] Edge from " << i << " to " << j << ", weight: " << graph->adj[i][j] << endl;
+        }
+    }
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
-    float k = 27*log(INPUT_N);  // TODO: change this
+    int k = 5*log(INPUT_N);  // TODO: change this
     set<int> S = getRandomVertices(graph, k, INPUT_N);
 
     map<int, set<int>> ballInIntersec;
@@ -112,9 +119,13 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
         set<pair<int, int>> Ebound = result.second;
         if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate
+            cout << "[DEBUG] Terminate1?" << endl;
+            terminateLDD = true;
             return fromMatrixToSet(graph->is_edge);
         }
         set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn, INPUT_N), D, INPUT_N);
+        if (terminateLDD)
+            return Erecurs;
         Erem = intersect(intersect(Erem, Ebound), Erecurs);
         graph = subtractVertices(graph, newBallIn, INPUT_N);
     }
@@ -129,9 +140,13 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
         set<pair<int, int>> Ebound = result.second;
         if (Rv > D/4 || newBallOut.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate TODO maybe terminate means really terminate
+            cout << "[DEBUG] Terminate2?" << endl;
+            terminateLDD = true;
             return fromMatrixToSet(graph->is_edge);
         }
         set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallOut, INPUT_N), D, INPUT_N);
+        if (terminateLDD)
+            return Erecurs;
         Erem = intersect(intersect(Erem, Ebound), Erecurs);
         graph = subtractVertices(graph, newBallOut, INPUT_N);
     }
@@ -140,11 +155,17 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
     // TODO: check if terminate means really terminate
     int v = *graph->V.begin();
     set<int> ballInTest = ballIn(g0, v, D/2, INPUT_N).first;
-    if (!isSubset(ballInTest, graph->V))
+    if (!isSubset(ballInTest, graph->V)) {
+        cout << "[DEBUG] Terminate3?" << endl;
+        terminateLDD = true;
         return fromMatrixToSet(graph->is_edge);
+    }
     set<int> ballOutTest = ballIn(g0, v, D/2, INPUT_N).first;
-    if (!isSubset(ballOutTest, graph->V))
+    if (!isSubset(ballOutTest, graph->V)) {
+        cout << "[DEBUG] Terminate4?" << endl;
+        terminateLDD = true;
         return fromMatrixToSet(graph->is_edge);
+    }
     
     return Erem;
 }
@@ -215,6 +236,7 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
 }
 
 PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
+    cout << "[DEBUG] Entering scaleDown..." << endl;
     PriceFunction Phi2;
     Graph * graph_B_Phi2;
     if (delta > 2) {
@@ -233,7 +255,12 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
         }
 
         // phase 0: Decompose V to SCCs V1, V2... with weak diameter dB in G
+        terminateLDD = false;
         set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, INPUT_N);
+        for (auto [a, b] : Erem) {
+            cout << "[DEBUG] Erem: " << a << "->" << b << endl;
+        }
+        terminateLDD = false;
         Graph* graph_B = addIntegerToEdges(graph, B, INPUT_N);
         Graph* graph_B_rem = subtractEdges(graph_B, Erem, INPUT_N);
         vector<set<int>> SCCs = computeSCCs(graph_B_rem, INPUT_N);
@@ -262,6 +289,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
 }
 
 SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
+    cout << "[DEBUG] Entering SPMain..." << endl;
     Graph* g_up = new Graph(g_in->V, INPUT_N);
     g_up->adj = g_in->adj;
     g_up->is_edge = g_in->is_edge;
@@ -275,6 +303,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
     // Round B up to nearest power of 2
     int B = 2*g_in->V.size();
     B = roundB(B);
+    cout << "[DEBUG] B: " << B << endl;
 
     // Identity price function
     PriceFunction Phi0;

@@ -2,6 +2,8 @@
 #include "graph.h"
 #include "sssp.h"
 
+bool terminateLDD;
+
 double d_min(double a, double b) {
     if (a < b)
         return a;
@@ -16,10 +18,12 @@ set<int> getRandomVertices(Graph* g, int k, int INPUT_N) {
             vertices.insert(randomVert);
         } else {
             g->V.insert(randomVert);
-            if (g->V.find(randomVert++) != g->V.end())
-                vertices.insert(*(g->V.find(randomVert++)));
+            auto it = g->V.find(randomVert);
+            ++it;
+            if (it != g->V.end())
+                vertices.insert(*it);
             else
-                vertices.insert(*(g->V.find(randomVert--)));
+                vertices.insert(*(--(--it)));
             g->V.erase(randomVert);
         }
     }
@@ -237,6 +241,7 @@ Graph* mergeGraphs(Graph* g1, Graph* g2, int INPUT_N) {
 }
 
 vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
+    cout << "[DEBUG] Computing SCCs..." << endl;
     vector<set<int>> result;
     vector<bool> visited(INPUT_N, false);
     stack<int> s;
@@ -254,6 +259,7 @@ vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
             result.push_back(component);
         }
     }
+    cout << "[DEBUG] SCCs computed. SCCs number: " << result.size() << endl;
     return result;
 }
 

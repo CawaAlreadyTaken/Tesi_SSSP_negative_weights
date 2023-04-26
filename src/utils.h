@@ -4,6 +4,7 @@
 #include "graph.h"
 #include "sssp.h"
 
+#include <iostream>
 #include <stack>
 #include <random>
 #include <map>
@@ -11,6 +12,8 @@
 #include <queue>
 
 using namespace std;
+
+extern bool terminateLDD;
 
 int roundB(int b);
 double d_min(double a, double b);
