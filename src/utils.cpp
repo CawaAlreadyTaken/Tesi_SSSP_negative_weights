@@ -246,7 +246,8 @@ vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
     vector<bool> visited(INPUT_N, false);
     stack<int> s;
     for (int v : g->V) {
-        DFS(g, v, visited, s);
+        if (!visited[v])
+            DFS(g, v, visited, s);
     }
     visited.assign(INPUT_N, false);
     Graph* gT = transpose(g, INPUT_N);
@@ -265,8 +266,8 @@ vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
 
 Graph* transpose(Graph* g, int INPUT_N) {
     Graph* result = new Graph(g->V, INPUT_N);
-    for (int i = 0; i < g->V.size(); i++) {
-        for (int j = 0; j < g->V.size(); j++) {
+    for (int i : g->V) {
+        for (int j : g->V) {
             if (g->is_edge[i][j]) {
                 result->adj[j][i] = g->adj[i][j];
                 result->is_edge[j][i] = true;
@@ -279,7 +280,7 @@ Graph* transpose(Graph* g, int INPUT_N) {
 
 void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s) {
     visited[v] = true;
-    for (int i = 0; i < g->V.size(); i++) {
+    for (int i : g->V) {
         if (g->is_edge[v][i] && !visited[i]) {
             DFS(g, i, visited, s);
         }
@@ -290,7 +291,7 @@ void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s) {
 void DFSaddComp(Graph* g, int v, vector<bool>& visited, set<int>& component) {
     visited[v] = true;
     component.insert(v);
-    for (int i = 0; i < g->V.size(); i++) {
+    for (int i : g->V) {
         if (g->is_edge[v][i] && !visited[i]) {
             DFSaddComp(g, i, visited, component);
         }

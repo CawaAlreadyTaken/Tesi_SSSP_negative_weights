@@ -70,12 +70,6 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
     Graph* g0 = new Graph(graph->V, INPUT_N);
     g0->adj = graph->adj;
     g0->is_edge = graph->is_edge;
-    for (int i : graph->V) {
-        for (int j : graph->V) {
-            if (graph->is_edge[i][j])
-                cout << "[DEBUG] Edge from " << i << " to " << j << ", weight: " << graph->adj[i][j] << endl;
-        }
-    }
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
@@ -237,6 +231,23 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
 
 PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
     cout << "[DEBUG] Entering scaleDown..." << endl;
+
+    /* DEBUG INPUT REQUIREMENTS */
+    int shared_out_degree = -1;
+    assert(B > 0);
+    for (int v : graph->V) {
+        int out_degree = 0;
+        for (int u : graph->V) {
+            if (graph->is_edge[v][u]) {
+                assert(graph->adj[v][u] >= -2*B);
+            }
+        }
+        if (shared_out_degree == -1)
+            shared_out_degree = out_degree;
+        else
+            assert(shared_out_degree == out_degree);
+    }
+
     PriceFunction Phi2;
     Graph * graph_B_Phi2;
     if (delta > 2) {
@@ -257,9 +268,6 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
         // phase 0: Decompose V to SCCs V1, V2... with weak diameter dB in G
         terminateLDD = false;
         set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, INPUT_N);
-        for (auto [a, b] : Erem) {
-            cout << "[DEBUG] Erem: " << a << "->" << b << endl;
-        }
         terminateLDD = false;
         Graph* graph_B = addIntegerToEdges(graph, B, INPUT_N);
         Graph* graph_B_rem = subtractEdges(graph_B, Erem, INPUT_N);
@@ -290,6 +298,23 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
 
 SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
     cout << "[DEBUG] Entering SPMain..." << endl;
+
+    /* DEBUG INPUT REQUIREMENTS */
+    int shared_out_degree = -1;
+    for (int i : g_in->V) {
+        int out_degree = 0;
+        for (int j : g_in->V) {
+            if (g_in->is_edge[i][j]) {
+                out_degree++;
+                assert(g_in->adj[i][j] >= -1);
+            }
+        }
+        if (shared_out_degree == -1)
+            shared_out_degree = out_degree;
+        else
+            assert(shared_out_degree == out_degree);
+    }
+
     Graph* g_up = new Graph(g_in->V, INPUT_N);
     g_up->adj = g_in->adj;
     g_up->is_edge = g_in->is_edge;
@@ -314,12 +339,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
         graph_B_phi0->adj = g_up->adj;
         graph_B_phi0->is_edge = g_up->is_edge;
         // Apply the price function
-        for (int j : graph_B_phi0->V) {
-            for (int k : graph_B_phi0->V) {
-                if (graph_B_phi0->is_edge[j][k])
-                    graph_B_phi0->adj[j][k] += Phi0.prices[j] - Phi0.prices[k];
-            }
-        }
+        graph_B_phi0 = applyPriceFunction(graph_B_phi0, Phi0, INPUT_N);
         // Call scaleDown function
         PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), s_in, INPUT_N);
         Phi0 = PriceFunction::sum(Phi0, Psi0);
