@@ -65,7 +65,9 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPU
 }
 
 set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
-    cout << "[DEBUG] Entering LDD..." << endl;
+    // TODO insert assert
+    cout << "[DEBUG] Entering LDD, D = " << D << endl;
+    printGraph(graph);
     // Save a copy of the original graph, since we are going to modify it
     Graph* g0 = new Graph(graph->V, INPUT_N);
     g0->adj = graph->adj;
@@ -73,7 +75,8 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
-    int k = 5*log(INPUT_N);  // TODO: change this
+    int k = 80*log(INPUT_N);  // TODO: change this
+    cout << "[DEBUG] k = " << k << endl;
     set<int> S = getRandomVertices(graph, k, INPUT_N);
 
     map<int, set<int>> ballInIntersec;
@@ -89,28 +92,35 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
             ballInIntersec[z].insert(x);
     }
 
-    vector<int> in_light;
-    vector<int> out_light;
-    vector<int> heavy;
+    set<int> in_light;
+    set<int> out_light;
+    set<int> heavy;
+
 
     for (int v : graph->V) {
         if (ballInIntersec[v].size() <= 0.6*k)
-            in_light.push_back(v);
+            in_light.insert(v);
         else if (ballOutIntersec[v].size() <= 0.6*k)
-            out_light.push_back(v);
+            out_light.insert(v);
         else
-            heavy.push_back(v);
+            heavy.insert(v);
     }
+    for (int v : in_light)
+        cout << "[DEBUG] Inlight: " << v << endl;
     // Phase 2: Carve out balls until no light vertices remain
     default_random_engine generator;
-    while (in_light.size()) {
-        int v = in_light.back(); // Check unmarkation
+    while (!in_light.empty()) {
+        cout << "[DEBUG] Inlight size = " << in_light.size() << endl;
+        int v = *in_light.begin(); // Check unmarkation
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
         int Rv = distribution(generator);
+        cout << "[DEBUG] v = " << v << "; Rv = " << Rv << endl;
         auto result = ballIn(graph, v, Rv, INPUT_N);
         set<int> newBallIn = result.first;
         set<pair<int, int>> Ebound = result.second;
+        cout << "[DEBUG] newBallIn size = " << newBallIn.size() << endl;
+        cout << "[DEBUG] 0.7*numero_vertici = " << 0.7*graph->V.size() << endl;
         if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate
             cout << "[DEBUG] Terminate1?" << endl;
@@ -122,10 +132,18 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
             return Erecurs;
         Erem = intersect(intersect(Erem, Ebound), Erecurs);
         graph = subtractVertices(graph, newBallIn, INPUT_N);
+        for (auto x : in_light) {
+            if (newBallIn.find(x) != newBallIn.end())
+                in_light.erase(x);
+        }
+        for (auto x : out_light) {
+            if (newBallIn.find(x) != newBallIn.end())
+                out_light.erase(x);
+        }
     }
 
-    while (out_light.size()) {
-        int v = out_light.back(); // Check unmarkation
+    while (!out_light.empty()) {
+        int v = *out_light.begin(); // Check unmarkation
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
         int Rv = distribution(generator);
@@ -143,6 +161,10 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
             return Erecurs;
         Erem = intersect(intersect(Erem, Ebound), Erecurs);
         graph = subtractVertices(graph, newBallOut, INPUT_N);
+        for (auto x : out_light) {
+            if (newBallOut.find(x) != newBallOut.end())
+                out_light.erase(x);
+        }
     }
 
     // Clean Up: check that remaining vertices  have small weak diameter in initial input graph G0

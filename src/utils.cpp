@@ -242,6 +242,7 @@ Graph* mergeGraphs(Graph* g1, Graph* g2, int INPUT_N) {
 
 vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
     cout << "[DEBUG] Computing SCCs..." << endl;
+    cout << "[DEBUG] Graph has " << g->V.size() << " vertices" << endl;
     vector<set<int>> result;
     vector<bool> visited(INPUT_N, false);
     stack<int> s;
@@ -343,4 +344,16 @@ void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>
     }
 
     s.push(index);
+}
+
+void printGraph(Graph* g) {
+    cout << "[DEBUG] PrintGraph:" << endl;
+    for (int i : g->V) {
+        for (int j : g->V) {
+            if (g->is_edge[i][j]) {
+                cout << i << " -> " << j << " : " << g->adj[i][j] << endl;
+            }
+        }
+    }
+    cout << endl << endl;
 }
