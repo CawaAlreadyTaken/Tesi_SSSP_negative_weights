@@ -65,9 +65,19 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPU
 }
 
 set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
-    // TODO insert assert
     cout << "[DEBUG] Entering LDD, D = " << D << endl;
     printGraph(graph);
+
+    /* DEBUG INPUT REQUIREMENTS */
+    assert(D > 0);
+    for (int i : graph->V) {
+        for (int j : graph->V) {
+            if (graph->is_edge[i][j])
+                assert(graph->adj[i][j] >= 0);
+        }
+    }
+    /* DEBUG INPUT REQUIREMENTS */
+
     // Save a copy of the original graph, since we are going to modify it
     Graph* g0 = new Graph(graph->V, INPUT_N);
     g0->adj = graph->adj;
@@ -183,6 +193,13 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
         return fromMatrixToSet(graph->is_edge);
     }
     
+    cout << "HEREE2!" << endl;
+    printGraph(g0);
+    for (auto [a, b] : Erem) {
+        cout << "[DEBUG] Erem: " << a << " " << b << endl;
+    }
+    cout << "HEREE3!" << endl;
+
     return Erem;
 }
 
@@ -269,6 +286,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
         else
             assert(shared_out_degree == out_degree);
     }
+    /* END DEBUG INPUT REQUIREMENTS */
 
     PriceFunction Phi2;
     Graph * graph_B_Phi2;
@@ -290,8 +308,13 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
         // phase 0: Decompose V to SCCs V1, V2... with weak diameter dB in G
         terminateLDD = false;
         set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, INPUT_N);
+        cout << endl << endl << "USCITO DA UN LDD LESSGOO" << endl << endl;
+        printGraph(graph);
+        for (auto [a, b] : Erem) {
+            cout << "[DEBUG] Erem: " << a << " " << b << endl;
+        }
         terminateLDD = false;
-        Graph* graph_B = addIntegerToEdges(graph, B, INPUT_N);
+        Graph* graph_B = addIntegerToNegativeEdges(graph, B, INPUT_N);
         Graph* graph_B_rem = subtractEdges(graph_B, Erem, INPUT_N);
         vector<set<int>> SCCs = computeSCCs(graph_B_rem, INPUT_N);
         // phase 1: Make edges inside the SCCs G^B[V_i] non-negative
@@ -311,7 +334,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
         Phi2.prices.assign(INPUT_N, 0);
     }
     // phase 3: Make all edges in G^B non-negative
-    graph_B_Phi2 = applyPriceFunction(addIntegerToEdges(graph, B, INPUT_N), Phi2, INPUT_N);
+    graph_B_Phi2 = applyPriceFunction(addIntegerToNegativeEdges(graph, B, INPUT_N), Phi2, INPUT_N);
     PriceFunction psi_first = elimNeg(graph_B_Phi2, s, INPUT_N);
     PriceFunction Phi3 = PriceFunction::sum(Phi2, psi_first);
 
@@ -336,6 +359,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
         else
             assert(shared_out_degree == out_degree);
     }
+    /* END DEBUG INPUT REQUIREMENTS */
 
     Graph* g_up = new Graph(g_in->V, INPUT_N);
     g_up->adj = g_in->adj;

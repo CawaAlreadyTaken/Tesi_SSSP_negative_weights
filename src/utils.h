@@ -26,7 +26,7 @@ Graph* subtractEdges(Graph* g, set<pair<int, int>> edges, int INPUT_N);
 set<pair<int, int>> fromMatrixToSet(vector<vector<bool>> isEdge);
 set<pair<int, int>> edgesMinusEdges(set<pair<int, int>> a, set<pair<int, int>> b);
 bool isSubset(set<int> a, set<int> b);
-Graph* addIntegerToEdges(Graph* g, int e, int INPUT_N);
+Graph* addIntegerToNegativeEdges(Graph* g, int e, int INPUT_N);
 Graph* applyPriceFunction(Graph* g, PriceFunction p, int INPUT_N);
 Graph* mergeGraphs(Graph* g1, Graph* g2, int INPUT_N);
 vector<set<int>> computeSCCs(Graph* g, int INPUT_N);

@@ -49,8 +49,8 @@ SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
     vector<vector<bool>> result_is_edge(INPUT_N, vector<bool>(INPUT_N, false));
     // If dijkstra is called, then there is no negative weight
     // If this is wrong, exit
-    for (int i = 0; i < g->V.size(); i++) {
-        for (int j = 0; j < g->V.size(); j++) {
+    for (int i : g->V) {
+        for (int j : g->V) {
             if (g->is_edge[i][j])
                 assert(g->adj[i][j]>=0);
         }
@@ -106,8 +106,8 @@ SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
 
 Graph* induced_graph(Graph* g, set<int> vertices, int INPUT_N) {
     Graph* result = new Graph(vertices, INPUT_N);
-    for (int i = 0; i < g->V.size(); i++) {
-        for (int j = 0; j < g->V.size(); j++) {
+    for (int i : g->V) {
+        for (int j : g->V) {
             if (g->is_edge[i][j] && vertices.find(i)!=vertices.end() && vertices.find(j)!=vertices.end()) {
                 result->adj[i][j] = g->adj[i][j];
                 result->is_edge[i][j] = true;
@@ -130,11 +130,11 @@ Graph* subtractVertices(Graph* g, set<int> vertices, int INPUT_N) {
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
     set<int> resultV;
-    for (int i = 0; i < g->V.size(); i++) {
+    for (int i : g->V) {
         if (vertices.find(i) != vertices.end())
             continue;
         resultV.insert(i);
-        for (int j = 0; j < g->V.size(); j++) {
+        for (int j : g->V) {
             if (g->is_edge[i][j] && vertices.find(j)==vertices.end()) {
                 resultAdj[i][j] = g->adj[i][j];
                 resultIsEdge[i][j] = true;
@@ -151,8 +151,8 @@ Graph* subtractEdges(Graph* g, set<pair<int, int>> edges, int INPUT_N) {
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
     set<int> resultV;
-    for (int i = 0; i < g->V.size(); i++) {
-        for (int j = 0; j < g->V.size(); j++) {
+    for (int i : g->V) {
+        for (int j : g->V) {
             if (g->is_edge[i][j] && edges.find({i, j})==edges.end()) {
                 resultV.insert(i);
                 resultV.insert(j);
@@ -179,7 +179,7 @@ set<pair<int, int>> fromMatrixToSet(vector<vector<bool>> isEdge) {
 }
 
 bool isSubset(set<int> a, set<int> b) {
-    for (auto i:a) {
+    for (int i:a) {
         if (b.find(i) == b.end())
             return false;
     }
@@ -188,8 +188,8 @@ bool isSubset(set<int> a, set<int> b) {
 
 Graph* applyPriceFunction(Graph* g, PriceFunction p, int INPUT_N) {
     Graph* result = new Graph(g->V, INPUT_N);
-    for (int i = 0; i < g->V.size(); i++) {
-        for (int j = 0; j < g->V.size(); j++) {
+    for (int i : g->V) {
+        for (int j : g->V) {
             if (g->is_edge[i][j]) {
                 result->adj[i][j] = g->adj[i][j]+p.prices[i]-p.prices[j];
                 result->is_edge[i][j] = true;
@@ -199,13 +199,14 @@ Graph* applyPriceFunction(Graph* g, PriceFunction p, int INPUT_N) {
     return result;
 }
 
-Graph* addIntegerToEdges(Graph* g, int e, int INPUT_N) {
+Graph* addIntegerToNegativeEdges(Graph* g, int e, int INPUT_N) {
     Graph* result = new Graph(g->V, INPUT_N);
-    for (int i = 0; i < g->V.size(); i++) {
-        for (int j = 0; j < g->V.size(); j++) {
-            if (g->is_edge[i][j]) {
+    result->adj = g->adj;
+    result->is_edge = g->is_edge;
+    for (int i : g->V) {
+        for (int j : g->V) {
+            if (g->is_edge[i][j] && g->adj[i][j] < 0) {
                 result->adj[i][j] = g->adj[i][j]+e;
-                result->is_edge[i][j] = true;
             }
         }
     }
@@ -216,20 +217,20 @@ Graph* mergeGraphs(Graph* g1, Graph* g2, int INPUT_N) {
     set<int> resultVertices;
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
-    for (int i = 0; i < g1->V.size(); i++) {
+    for (int i : g1->V) {
         resultVertices.insert(i);
-        for (int j = 0; j < g1->V.size(); j++) {
+        for (int j : g1->V) {
             if (g1->is_edge[i][j]) {
                 resultAdj[i][j] = g1->adj[i][j];
                 resultIsEdge[i][j] = true;
             }
         }
     }
-    for (int i = 0; i < g2->V.size(); i++) {
+    for (int i : g2->V) {
         resultVertices.insert(i);
-        for (int j = 0; j < g2->V.size(); j++) {
+        for (int j : g2->V) {
             if (g2->is_edge[i][j]) {
-                resultAdj[i][j] = g1->adj[i][j];
+                resultAdj[i][j] = g2->adj[i][j];
                 resultIsEdge[i][j] = true;
             }
         }
