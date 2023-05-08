@@ -39,4 +39,6 @@ void printGraph(Graph* g);
 bool checkConstantOutDegree(Graph* g);
 Graph* addDummySource(Graph* g, int INPUT_N);
 
+void print_shortest_path_tree(SSSP_Result result);
+
 #endif

@@ -44,17 +44,21 @@ int roundB(int b) {
 }
 
 SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
-    SSSP_Result result;
-    vector<vector<int>> result_adj(INPUT_N, vector<int>(INPUT_N));
-    vector<vector<bool>> result_is_edge(INPUT_N, vector<bool>(INPUT_N, false));
-    // If dijkstra is called, then there is no negative weight
-    // If this is wrong, exit
+    cout << "[PARTIAL RESULT] Dijkstra on graph:" << endl;
+    printGraph(g);
+
+    /* DEBUG INPUT REQUIREMENTS */
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j])
                 assert(g->adj[i][j]>=0);
         }
     }
+    /* END DEBUG INPUT REQUIREMENTS */
+
+    SSSP_Result result;
+    vector<vector<int>> result_adj(INPUT_N, vector<int>(INPUT_N));
+    vector<vector<bool>> result_is_edge(INPUT_N, vector<bool>(INPUT_N, false));
     result.has_negative_cycle = false;
 
     vector<bool> confirmed(INPUT_N, false);
@@ -386,4 +390,16 @@ Graph * addDummySource(Graph* g, int INPUT_N) {
     }
 
     return graph;
+}
+
+void print_shortest_path_tree(SSSP_Result result) {
+    vector<vector<int>> shortest_paths = result.shortest_paths_tree->adj;
+    for (int i = 0; i < shortest_paths.size(); i++) {
+        cout << "[RESULT] Dal nodo " << i << ":" << endl;
+        for (int j = 0; j < shortest_paths[i].size(); j++) {
+            if (result.shortest_paths_tree->is_edge[i][j])
+                cout << "[RESULT] al nodo " << j << ": " << result.shortest_paths_tree->adj[i][j] << endl;
+        }
+        cout << endl;
+    }
 }
