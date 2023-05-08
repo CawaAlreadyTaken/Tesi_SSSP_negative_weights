@@ -66,7 +66,6 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPU
 
 set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
     cout << "[DEBUG] Entering LDD, D = " << D << endl;
-    printGraph(graph);
 
     /* DEBUG INPUT REQUIREMENTS */
     assert(D > 0);
@@ -86,7 +85,6 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
     int k = 80*log(INPUT_N);  // TODO: change this
-    cout << "[DEBUG] k = " << k << endl;
     set<int> S = getRandomVertices(graph, k, INPUT_N);
 
     map<int, set<int>> ballInIntersec;
@@ -115,12 +113,9 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
         else
             heavy.insert(v);
     }
-    for (int v : in_light)
-        cout << "[DEBUG] Inlight: " << v << endl;
     // Phase 2: Carve out balls until no light vertices remain
     default_random_engine generator;
     while (!in_light.empty()) {
-        cout << "[DEBUG] Inlight size = " << in_light.size() << endl;
         int v = *in_light.begin(); // Check unmarkation
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
@@ -129,12 +124,10 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
         auto result = ballIn(graph, v, Rv, INPUT_N);
         set<int> newBallIn = result.first;
         set<pair<int, int>> Ebound = result.second;
-        cout << "[DEBUG] newBallIn size = " << newBallIn.size() << endl;
-        cout << "[DEBUG] 0.7*numero_vertici = " << 0.7*graph->V.size() << endl;
         if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate
             cout << "[DEBUG] Terminate1?" << endl;
-            terminateLDD = true;
+            //terminateLDD = true;
             return fromMatrixToSet(graph->is_edge);
         }
         set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn, INPUT_N), D, INPUT_N);
@@ -163,7 +156,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
         if (Rv > D/4 || newBallOut.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate TODO maybe terminate means really terminate
             cout << "[DEBUG] Terminate2?" << endl;
-            terminateLDD = true;
+            //terminateLDD = true;
             return fromMatrixToSet(graph->is_edge);
         }
         set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallOut, INPUT_N), D, INPUT_N);
@@ -183,27 +176,27 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
     set<int> ballInTest = ballIn(g0, v, D/2, INPUT_N).first;
     if (!isSubset(ballInTest, graph->V)) {
         cout << "[DEBUG] Terminate3?" << endl;
-        terminateLDD = true;
+        //terminateLDD = true;
         return fromMatrixToSet(graph->is_edge);
     }
     set<int> ballOutTest = ballIn(g0, v, D/2, INPUT_N).first;
     if (!isSubset(ballOutTest, graph->V)) {
         cout << "[DEBUG] Terminate4?" << endl;
-        terminateLDD = true;
+        //terminateLDD = true;
         return fromMatrixToSet(graph->is_edge);
     }
     
-    cout << "HEREE2!" << endl;
-    printGraph(g0);
-    for (auto [a, b] : Erem) {
-        cout << "[DEBUG] Erem: " << a << " " << b << endl;
-    }
-    cout << "HEREE3!" << endl;
-
     return Erem;
 }
 
-PriceFunction elimNeg(Graph *graph, int s, int INPUT_N) {
+PriceFunction elimNeg(Graph *g, int INPUT_N) {
+
+    /* DEBUG INPUT REQUIREMENTS */
+    assert(checkConstantOutDegree(g));
+    /* END DEBUG INPUT REQUIREMENTS */
+
+    Graph* graph = addDummySource(g, INPUT_N);
+    int s = 0; // Dummy source
 
     set<pair<int, int>> e = fromMatrixToSet(graph->is_edge);
     set<pair<int, int>> eNeg;
@@ -268,23 +261,18 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
     return c;
 }
 
-PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
-    cout << "[DEBUG] Entering scaleDown..." << endl;
+PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
+    cout << "[DEBUG] Entering scaleDown, delta = " << delta << ", B = " << B << endl;
 
     /* DEBUG INPUT REQUIREMENTS */
-    int shared_out_degree = -1;
+    assert(checkConstantOutDegree(graph));
     assert(B > 0);
     for (int v : graph->V) {
-        int out_degree = 0;
         for (int u : graph->V) {
             if (graph->is_edge[v][u]) {
                 assert(graph->adj[v][u] >= -2*B);
             }
         }
-        if (shared_out_degree == -1)
-            shared_out_degree = out_degree;
-        else
-            assert(shared_out_degree == out_degree);
     }
     /* END DEBUG INPUT REQUIREMENTS */
 
@@ -307,15 +295,20 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
 
         // phase 0: Decompose V to SCCs V1, V2... with weak diameter dB in G
         terminateLDD = false;
+        cout << "[DEBUG] graph_B_pos: " << endl;
+        printGraph(graph_B_pos);
         set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, INPUT_N);
-        cout << endl << endl << "USCITO DA UN LDD LESSGOO" << endl << endl;
-        printGraph(graph);
+        terminateLDD = false;
         for (auto [a, b] : Erem) {
             cout << "[DEBUG] Erem: " << a << " " << b << endl;
         }
-        terminateLDD = false;
+        cout << endl;
         Graph* graph_B = addIntegerToNegativeEdges(graph, B, INPUT_N);
+        cout << "[DEBUG] graph_B: " << endl;
+        printGraph(graph_B);
         Graph* graph_B_rem = subtractEdges(graph_B, Erem, INPUT_N);
+        cout << "[DEBUG] graph_B_rem: " << endl;
+        printGraph(graph_B_rem);
         vector<set<int>> SCCs = computeSCCs(graph_B_rem, INPUT_N);
         // phase 1: Make edges inside the SCCs G^B[V_i] non-negative
         Graph* H = induced_graph(graph, *SCCs.begin(), INPUT_N);
@@ -324,7 +317,8 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
                 continue;
             H = mergeGraphs(H, induced_graph(graph, SCC, INPUT_N), INPUT_N);
         }
-        PriceFunction Phi1 = scaleDown(H, delta/2, B, s, INPUT_N);
+        printGraph(H);
+        PriceFunction Phi1 = scaleDown(H, delta/2, B, INPUT_N);
         // phase 2: Make all edges in G^B \ E^rem non-negative
         Graph* graph_B_Phi1 = applyPriceFunction(graph_B, Phi1, INPUT_N);
         Graph* graph_B_Phi1_rem = subtractEdges(graph_B_Phi1, Erem, INPUT_N);
@@ -335,7 +329,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int s, int INPUT_N) {
     }
     // phase 3: Make all edges in G^B non-negative
     graph_B_Phi2 = applyPriceFunction(addIntegerToNegativeEdges(graph, B, INPUT_N), Phi2, INPUT_N);
-    PriceFunction psi_first = elimNeg(graph_B_Phi2, s, INPUT_N);
+    PriceFunction psi_first = elimNeg(graph_B_Phi2, INPUT_N);
     PriceFunction Phi3 = PriceFunction::sum(Phi2, psi_first);
 
     return Phi3;
@@ -345,19 +339,13 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
     cout << "[DEBUG] Entering SPMain..." << endl;
 
     /* DEBUG INPUT REQUIREMENTS */
-    int shared_out_degree = -1;
+    assert(checkConstantOutDegree(g_in));
     for (int i : g_in->V) {
-        int out_degree = 0;
         for (int j : g_in->V) {
             if (g_in->is_edge[i][j]) {
-                out_degree++;
                 assert(g_in->adj[i][j] >= -1);
             }
         }
-        if (shared_out_degree == -1)
-            shared_out_degree = out_degree;
-        else
-            assert(shared_out_degree == out_degree);
     }
     /* END DEBUG INPUT REQUIREMENTS */
 
@@ -381,13 +369,14 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
     Phi0.prices.assign(INPUT_N, 0);
 
     for (int i = 1; pow(2, i)<=B; i++) {
+        cout << endl << "[DEBUG] Iteration number " << i << " of SPmain" << endl << endl;
         Graph* graph_B_phi0 = new Graph(g_up->V, INPUT_N);
         graph_B_phi0->adj = g_up->adj;
         graph_B_phi0->is_edge = g_up->is_edge;
         // Apply the price function
         graph_B_phi0 = applyPriceFunction(graph_B_phi0, Phi0, INPUT_N);
         // Call scaleDown function
-        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), s_in, INPUT_N);
+        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), INPUT_N);
         Phi0 = PriceFunction::sum(Phi0, Psi0);
     }
 

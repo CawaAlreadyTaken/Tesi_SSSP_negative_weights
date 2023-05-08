@@ -36,5 +36,7 @@ void DFSaddComp(Graph* g, int v, vector<bool>& visited, set<int>& component);
 vector<set<int>> topologicalSort(vector<set<int>> SCCs, Graph* graph, vector<int> fromVertixToSCC);
 void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>>& sccAdj);
 void printGraph(Graph* g);
+bool checkConstantOutDegree(Graph* g);
+Graph* addDummySource(Graph* g, int INPUT_N);
 
 #endif

@@ -148,22 +148,15 @@ Graph* subtractVertices(Graph* g, set<int> vertices, int INPUT_N) {
 }
 
 Graph* subtractEdges(Graph* g, set<pair<int, int>> edges, int INPUT_N) {
-    vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
-    vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
-    set<int> resultV;
+    Graph* result = new Graph(g->V, INPUT_N);
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j] && edges.find({i, j})==edges.end()) {
-                resultV.insert(i);
-                resultV.insert(j);
-                resultAdj[i][j] = g->adj[i][j];
-                resultIsEdge[i][j] = true;
+                result->adj[i][j] = g->adj[i][j];
+                result->is_edge[i][j] = true;
             }
         }
     }
-    Graph* result = new Graph(resultV, INPUT_N);
-    result->adj = resultAdj;
-    result->is_edge = resultIsEdge;
     return result;
 }
 
@@ -349,12 +342,49 @@ void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>
 
 void printGraph(Graph* g) {
     cout << "[DEBUG] PrintGraph:" << endl;
+    cout << "[DEBUG] Graph has " << g->V.size() << " vertices:" << endl;
+    cout << "[DEBUG] ";
+    for (int i : g->V) {
+        cout << i << ' ';
+    }
+    cout << endl;
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j]) {
-                cout << i << " -> " << j << " : " << g->adj[i][j] << endl;
+                cout << "[DEBUG] " << i << " -> " << j << " : " << g->adj[i][j] << endl;
             }
         }
     }
     cout << endl << endl;
+}
+
+bool checkConstantOutDegree(Graph* graph) {
+    int shared_out_degree = -1;
+    for (int v : graph->V) {
+        int out_degree = 0;
+        for (int u : graph->V) {
+            if (graph->is_edge[v][u]) {
+                out_degree++;
+            }
+        }
+        if (shared_out_degree == -1)
+            shared_out_degree = out_degree;
+        else if (shared_out_degree != out_degree)
+            return false;
+    }
+    return true;
+}
+
+Graph * addDummySource(Graph* g, int INPUT_N) {
+    Graph* graph = new Graph(g->V, INPUT_N);
+    graph->adj = g->adj;
+    graph->is_edge = g->is_edge;
+
+    graph->V.insert(0);
+    for (int i : graph->V) {
+        graph->adj[0][i] = 0;
+        graph->is_edge[0][i] = true;
+    }
+
+    return graph;
 }

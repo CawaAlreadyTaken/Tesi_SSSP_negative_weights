@@ -32,11 +32,11 @@ int main() {
     // s: index of source
     int n, m, s;
     cin >> n >> m >> s;
-    INPUT_N = n;
+    INPUT_N = n+1;
 
     // Create graph with given constraints
     set<int> vertices;
-    for (int i = 0; i < n; i++)
+    for (int i = 1; i <= n; i++)
         vertices.insert(i);
     Graph* graph = new Graph(vertices, INPUT_N);
 
