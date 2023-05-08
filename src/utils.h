@@ -20,7 +20,7 @@ double d_min(double a, double b);
 SSSP_Result dijkstra(Graph* g, int s, int INPUT_N);
 set<int> getRandomVertices(Graph* g, int k, int INPUT_N);
 Graph* induced_graph(Graph* g, set<int> vertices, int INPUT_N);
-set<pair<int, int>> intersect(set<pair<int, int>> a, set<pair<int, int>> b);
+set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>> b);
 Graph* subtractVertices(Graph* g, set<int> vertices, int INPUT_N);
 Graph* subtractEdges(Graph* g, set<pair<int, int>> edges, int INPUT_N);
 set<pair<int, int>> fromMatrixToSet(vector<vector<bool>> isEdge);

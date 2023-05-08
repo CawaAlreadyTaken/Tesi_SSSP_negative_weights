@@ -117,13 +117,11 @@ Graph* induced_graph(Graph* g, set<int> vertices, int INPUT_N) {
     return result;
 }
 
-set<pair<int, int>> intersect(set<pair<int, int>> a, set<pair<int, int>> b) {
-    set<pair<int, int>> result;
-    for (auto i:a) {
-        if (b.find(i) != b.end())
-            result.insert(i);
+set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>> b) {
+    for (auto i:b) {
+        a.insert(i);
     }
-    return result;
+    return a;
 }
 
 Graph* subtractVertices(Graph* g, set<int> vertices, int INPUT_N) {
@@ -164,8 +162,9 @@ set<pair<int, int>> fromMatrixToSet(vector<vector<bool>> isEdge) {
     set<pair<int, int>> result;
     for (int i = 0; i < isEdge.size(); i++) {
         for (int j = 0; j < isEdge.size(); j++) {
-            if (isEdge[i][j])
+            if (isEdge[i][j]) {
                 result.insert({i, j});
+            }
         }
     }
     return result;

@@ -64,7 +64,8 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPU
     return {ris, boundary};
 }
 
-set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
+set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
+    for (int i = 0; i < depth; i++) cout << '\t';
     cout << "[DEBUG] Entering LDD, D = " << D << endl;
 
     /* DEBUG INPUT REQUIREMENTS */
@@ -84,7 +85,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
-    int k = 80*log(INPUT_N);  // TODO: change this
+    int k = 3*log(INPUT_N);  // TODO: change this
     set<int> S = getRandomVertices(graph, k, INPUT_N);
 
     map<int, set<int>> ballInIntersec;
@@ -106,12 +107,20 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
 
 
     for (int v : graph->V) {
-        if (ballInIntersec[v].size() <= 0.6*k)
+        if (ballInIntersec[v].size() <= 0.6*k) 
             in_light.insert(v);
         else if (ballOutIntersec[v].size() <= 0.6*k)
             out_light.insert(v);
         else
             heavy.insert(v);
+    }
+    for (int v : in_light) {
+        for (int i = 0; i < depth; i++) cout << '\t';
+        cout << "[DEBUG] in_light: " << v << endl;
+    }
+    for (int v : out_light) {
+        for (int i = 0; i < depth; i++) cout << '\t';
+        cout << "[DEBUG] out_light: " << v << endl;
     }
     // Phase 2: Carve out balls until no light vertices remain
     default_random_engine generator;
@@ -119,29 +128,33 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
         int v = *in_light.begin(); // Check unmarkation
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
-        int Rv = distribution(generator);
-        cout << "[DEBUG] v = " << v << "; Rv = " << Rv << endl;
+        int Rv = distribution(generator)+1; // TODO check this
         auto result = ballIn(graph, v, Rv, INPUT_N);
         set<int> newBallIn = result.first;
         set<pair<int, int>> Ebound = result.second;
+        for (int i = 0; i < depth; i++) cout << '\t';
+        cout << "[DEBUG] v = " << v << "; Rv = " << Rv << "; D = " << D << "; ballin.size() = " << newBallIn.size() << "; graph->V.size() = " << graph->V.size() << endl;
         if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate
+            for (int i = 0; i < depth; i++) cout << '\t';
             cout << "[DEBUG] Terminate1?" << endl;
             //terminateLDD = true;
             return fromMatrixToSet(graph->is_edge);
         }
-        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn, INPUT_N), D, INPUT_N);
+        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn, INPUT_N), D, INPUT_N, depth+1);
+        for (int i = 0; i < depth; i++) cout << '\t';
+        cout << "[DEBUG] Erecurs: " << endl;
+        for (auto x : Erecurs) {
+            for (int i = 0; i < depth; i++) cout << '\t';
+            cout << x.first << " " << x.second << endl;
+        }
         if (terminateLDD)
             return Erecurs;
-        Erem = intersect(intersect(Erem, Ebound), Erecurs);
+        Erem = edgesUnion(edgesUnion(Erem, Ebound), Erecurs);
         graph = subtractVertices(graph, newBallIn, INPUT_N);
-        for (auto x : in_light) {
-            if (newBallIn.find(x) != newBallIn.end())
-                in_light.erase(x);
-        }
-        for (auto x : out_light) {
-            if (newBallIn.find(x) != newBallIn.end())
-                out_light.erase(x);
+        for (auto x : newBallIn) {
+            in_light.erase(x);
+            out_light.erase(x);
         }
     }
 
@@ -149,24 +162,24 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
         int v = *out_light.begin(); // Check unmarkation
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
-        int Rv = distribution(generator);
+        int Rv = distribution(generator)+1; // TODO check this
         auto result = ballOut(graph, v, Rv, INPUT_N);
         set<int> newBallOut = result.first;
         set<pair<int, int>> Ebound = result.second;
         if (Rv > D/4 || newBallOut.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate TODO maybe terminate means really terminate
+            for (int i = 0; i < depth; i++) cout << '\t';
             cout << "[DEBUG] Terminate2?" << endl;
             //terminateLDD = true;
             return fromMatrixToSet(graph->is_edge);
         }
-        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallOut, INPUT_N), D, INPUT_N);
+        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallOut, INPUT_N), D, INPUT_N, depth+1);
         if (terminateLDD)
             return Erecurs;
-        Erem = intersect(intersect(Erem, Ebound), Erecurs);
+        Erem = edgesUnion(edgesUnion(Erem, Ebound), Erecurs);
         graph = subtractVertices(graph, newBallOut, INPUT_N);
-        for (auto x : out_light) {
-            if (newBallOut.find(x) != newBallOut.end())
-                out_light.erase(x);
+        for (auto x : newBallOut) {
+            out_light.erase(x);
         }
     }
 
@@ -175,12 +188,14 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N) {
     int v = *graph->V.begin();
     set<int> ballInTest = ballIn(g0, v, D/2, INPUT_N).first;
     if (!isSubset(ballInTest, graph->V)) {
+        for (int i = 0; i < depth; i++) cout << '\t';
         cout << "[DEBUG] Terminate3?" << endl;
         //terminateLDD = true;
         return fromMatrixToSet(graph->is_edge);
     }
     set<int> ballOutTest = ballIn(g0, v, D/2, INPUT_N).first;
     if (!isSubset(ballOutTest, graph->V)) {
+        for (int i = 0; i < depth; i++) cout << '\t';
         cout << "[DEBUG] Terminate4?" << endl;
         //terminateLDD = true;
         return fromMatrixToSet(graph->is_edge);
@@ -277,7 +292,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
     /* END DEBUG INPUT REQUIREMENTS */
 
     PriceFunction Phi2;
-    Graph * graph_B_Phi2;
+    Graph* graph_B_Phi2;
     if (delta > 2) {
         int d = delta/2;
         Graph* graph_B_pos = new Graph(graph->V, INPUT_N);
@@ -297,18 +312,17 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
         terminateLDD = false;
         cout << "[DEBUG] graph_B_pos: " << endl;
         printGraph(graph_B_pos);
-        set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, INPUT_N);
+        set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, INPUT_N, 0);
         terminateLDD = false;
+        if (Erem.empty()) {
+            cout << "[DEBUG] Erem is empty" << endl;
+        }
         for (auto [a, b] : Erem) {
             cout << "[DEBUG] Erem: " << a << " " << b << endl;
         }
         cout << endl;
         Graph* graph_B = addIntegerToNegativeEdges(graph, B, INPUT_N);
-        cout << "[DEBUG] graph_B: " << endl;
-        printGraph(graph_B);
         Graph* graph_B_rem = subtractEdges(graph_B, Erem, INPUT_N);
-        cout << "[DEBUG] graph_B_rem: " << endl;
-        printGraph(graph_B_rem);
         vector<set<int>> SCCs = computeSCCs(graph_B_rem, INPUT_N);
         // phase 1: Make edges inside the SCCs G^B[V_i] non-negative
         Graph* H = induced_graph(graph, *SCCs.begin(), INPUT_N);
