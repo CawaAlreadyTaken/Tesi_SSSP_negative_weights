@@ -10,9 +10,10 @@ int INPUT_N;
 void print_shortest_path_tree(SSSP_Result result) {
     vector<vector<int>> shortest_paths = result.shortest_paths_tree->adj;
     for (int i = 0; i < shortest_paths.size(); i++) {
-        cout << i << ":\t";
-        for (int nodo_adiacente : shortest_paths[i]) {
-            cout << nodo_adiacente << "\t";
+        cout << "[RESULT] Dal nodo " << i << ":" << endl;
+        for (int j = 0; j < shortest_paths[i].size(); j++) {
+            if (result.shortest_paths_tree->is_edge[i][j])
+                cout << "[RESULT] al nodo " << j << ": " << result.shortest_paths_tree->adj[i][j] << endl;
         }
         cout << endl;
     }

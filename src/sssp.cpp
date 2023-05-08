@@ -85,7 +85,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
-    int k = 3*log(INPUT_N);  // TODO: change this
+    int k = 10*log(INPUT_N);  // TODO: change this
     set<int> S = getRandomVertices(graph, k, INPUT_N);
 
     map<int, set<int>> ballInIntersec;
@@ -105,10 +105,10 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
     set<int> out_light;
     set<int> heavy;
 
-
     for (int v : graph->V) {
-        if (ballInIntersec[v].size() <= 0.6*k) 
+        if (ballInIntersec[v].size() <= 0.6*k) {
             in_light.insert(v);
+        }
         else if (ballOutIntersec[v].size() <= 0.6*k)
             out_light.insert(v);
         else
@@ -139,14 +139,14 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
             for (int i = 0; i < depth; i++) cout << '\t';
             cout << "[DEBUG] Terminate1?" << endl;
             //terminateLDD = true;
-            return fromMatrixToSet(graph->is_edge);
+            return fromMatrixToSet(g0->is_edge);
         }
         set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn, INPUT_N), D, INPUT_N, depth+1);
         for (int i = 0; i < depth; i++) cout << '\t';
         cout << "[DEBUG] Erecurs: " << endl;
         for (auto x : Erecurs) {
             for (int i = 0; i < depth; i++) cout << '\t';
-            cout << x.first << " " << x.second << endl;
+            cout << "[DEBUG] " << x.first << " " << x.second << endl;
         }
         if (terminateLDD)
             return Erecurs;
@@ -171,7 +171,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
             for (int i = 0; i < depth; i++) cout << '\t';
             cout << "[DEBUG] Terminate2?" << endl;
             //terminateLDD = true;
-            return fromMatrixToSet(graph->is_edge);
+            return fromMatrixToSet(g0->is_edge);
         }
         set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallOut, INPUT_N), D, INPUT_N, depth+1);
         if (terminateLDD)
@@ -191,14 +191,14 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
         for (int i = 0; i < depth; i++) cout << '\t';
         cout << "[DEBUG] Terminate3?" << endl;
         //terminateLDD = true;
-        return fromMatrixToSet(graph->is_edge);
+        return fromMatrixToSet(g0->is_edge);
     }
     set<int> ballOutTest = ballIn(g0, v, D/2, INPUT_N).first;
     if (!isSubset(ballOutTest, graph->V)) {
         for (int i = 0; i < depth; i++) cout << '\t';
         cout << "[DEBUG] Terminate4?" << endl;
         //terminateLDD = true;
-        return fromMatrixToSet(graph->is_edge);
+        return fromMatrixToSet(g0->is_edge);
     }
     
     return Erem;
