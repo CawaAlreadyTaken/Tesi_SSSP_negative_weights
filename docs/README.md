@@ -1,5 +1,14 @@
 # Tesi NWSSSP
-### Author: _Daniele Cabassi_
+## Author: _Daniele Cabassi_
+
+### Per eseguire
+```bash
+g++ main.cpp sssp.cpp utils.cpp graph.cpp
+./a.out < input1.txt 2>err.out
+```
+Al momento, i messaggi di debug vengono stampati su cerr, quindi ridirezioniamo lo standard error per vedere solamente la soluzione.
+
+### Note riguardo al paper
 
 Algoritmo (1): NWSSSP (Negative-Weight Single-Source Shortesh Path)  
 Algoritmo (2): MFMCF (Maximum Flow and Minimum-Cost Flow)
