@@ -39,7 +39,7 @@ int main() {
     // END INPUT
 
     // DEBUG PRINT
-    csacademy_printGraph(graph);
+    //csacademy_printGraph(graph);
 
     SSSP_Result sssp_result = SPmain(graph, s, INPUT_N);
 

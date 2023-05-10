@@ -44,8 +44,8 @@ int roundB(int b) {
 }
 
 SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
-    cout << "[PARTIAL RESULT] Dijkstra on graph:" << endl;
-    csacademy_printGraph(g);
+    //cout << "[PARTIAL RESULT] Dijkstra on graph:" << endl;
+    //csacademy_printGraph(g);
 
     /* DEBUG INPUT REQUIREMENTS */
     for (int i : g->V) {
@@ -76,7 +76,6 @@ SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
 
     while (!pq.empty()) {
         auto top = pq.top();
-        cout << "[PQ TOP] {weight, vertexFrom, vertexTo} = {" << top.first*-1 << ", " << top.second.first << ", " << top.second.second << "}" << endl;
         pq.pop();
         int weight = top.first*-1;
         int vertexFrom = top.second.first;
