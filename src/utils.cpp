@@ -87,7 +87,7 @@ SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
             continue;
 
         // Otherwise, we found a new distance to confirm
-        distances[vertexTo] = distances[vertexFrom]+weight;
+        distances[vertexTo] = weight;
         confirmed[vertexTo] = true;
         result_adj[vertexFrom][vertexTo] = weight;
         result_is_edge[vertexFrom][vertexTo] = true;
