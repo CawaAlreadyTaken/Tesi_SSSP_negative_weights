@@ -45,7 +45,7 @@ int roundB(int b) {
 
 SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
     cout << "[PARTIAL RESULT] Dijkstra on graph:" << endl;
-    printGraph(g);
+    csacademy_printGraph(g);
 
     /* DEBUG INPUT REQUIREMENTS */
     for (int i : g->V) {
@@ -76,6 +76,7 @@ SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
 
     while (!pq.empty()) {
         auto top = pq.top();
+        cout << "[PQ TOP] {weight, vertexFrom, vertexTo} = {" << top.first*-1 << ", " << top.second.first << ", " << top.second.second << "}" << endl;
         pq.pop();
         int weight = top.first*-1;
         int vertexFrom = top.second.first;
@@ -238,8 +239,8 @@ Graph* mergeGraphs(Graph* g1, Graph* g2, int INPUT_N) {
 }
 
 vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
-    cout << "[DEBUG] Computing SCCs..." << endl;
-    cout << "[DEBUG] Graph has " << g->V.size() << " vertices" << endl;
+    cerr << "[DEBUG] Computing SCCs..." << endl;
+    cerr << "[DEBUG] Graph has " << g->V.size() << " vertices" << endl;
     vector<set<int>> result;
     vector<bool> visited(INPUT_N, false);
     stack<int> s;
@@ -258,7 +259,7 @@ vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
             result.push_back(component);
         }
     }
-    cout << "[DEBUG] SCCs computed. SCCs number: " << result.size() << endl;
+    cerr << "[DEBUG] SCCs computed. SCCs number: " << result.size() << endl;
     return result;
 }
 
@@ -344,21 +345,33 @@ void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>
 }
 
 void printGraph(Graph* g) {
-    cout << "[DEBUG] PrintGraph:" << endl;
-    cout << "[DEBUG] Graph has " << g->V.size() << " vertices:" << endl;
-    cout << "[DEBUG] ";
+    cerr << "[DEBUG] PrintGraph:" << endl;
+    cerr << "[DEBUG] Graph has " << g->V.size() << " vertices:" << endl;
+    cerr << "[DEBUG] ";
     for (int i : g->V) {
-        cout << i << ' ';
+        cerr << i << ' ';
     }
-    cout << endl;
+    cerr << endl;
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j]) {
-                cout << "[DEBUG] " << i << " -> " << j << " : " << g->adj[i][j] << endl;
+                cerr << "[DEBUG] " << i << " -> " << j << " : " << g->adj[i][j] << endl;
             }
         }
     }
-    cout << endl << endl;
+    cerr << endl << endl;
+}
+
+void csacademy_printGraph(Graph* g) {
+    for (int i : g->V) {
+        cout << i << endl;
+    }
+    for (int i : g->V) {
+        for (int j : g->V) {
+            if (g->is_edge[i][j])
+                cout << i << ' ' << j << ' ' << g->adj[i][j] << endl;
+        }
+    }
 }
 
 bool checkConstantOutDegree(Graph* graph) {
