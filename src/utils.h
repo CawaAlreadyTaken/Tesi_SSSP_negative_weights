@@ -10,8 +10,12 @@
 #include <map>
 #include <cassert>
 #include <queue>
+#include <chrono>
 
 using namespace std;
+using std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
 
 extern bool terminateLDD;
 extern int INPUT_N;

@@ -37,6 +37,9 @@ int main() {
     }
     /* END INPUT */
 
+    log(false, 0, "Input graph:");
+    printGraph(graph, 0, false);
+
     SSSP_Result sssp_result = SPmain(graph, s);
 
     if (sssp_result.has_negative_cycle) {

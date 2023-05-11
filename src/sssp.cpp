@@ -84,7 +84,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
-    int k = 10*log(INPUT_N);  // TODO: change this
+    int k = 3*log(INPUT_N);  // TODO: change this
     set<int> S = getRandomVertices(graph, k);
 
     map<int, set<int>> ballInIntersec;
@@ -249,10 +249,11 @@ PriceFunction elimNeg(Graph *g) {
 
     PriceFunction result;
     result.prices = prices;
-    // DEBUG 
+    /* DEBUG */
     for (int i = 0; i < result.prices.size(); i++) {
         assert(result.prices[i] != INT32_MAX);
     }
+    /* END DEBUG */
     return result;
 }
 
@@ -299,7 +300,11 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
 
         // phase 0: Decompose V to SCCs V1, V2... with weak diameter dB in G
         terminateLDD = false;
+        auto t1 = high_resolution_clock::now();
         set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, 0);
+        auto t2 = high_resolution_clock::now();
+        auto ms = duration_cast<milliseconds>(t2-t1);
+        log(true, 0, "[TIME] LDD call took " + to_string(ms.count()) + " ms\n");
         terminateLDD = false;
         Graph* graph_B = addIntegerToNegativeEdges(graph, B);
         Graph* graph_B_rem = subtractEdges(graph_B, Erem);
@@ -363,6 +368,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
     Phi0.prices.assign(INPUT_N, 0);
 
     for (int i = 1; pow(2, i)<=B; i++) {
+        auto t1 = high_resolution_clock::now();
         log(true, 0, "Iteration number " + to_string(i) + " of SPmain");
         Graph* graph_B_phi0 = new Graph(g_up->V);
         graph_B_phi0->adj = g_up->adj;
@@ -372,6 +378,9 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
         // Call scaleDown function
         PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), 0);
         Phi0 = PriceFunction::sum(Phi0, Psi0);
+        auto t2 = high_resolution_clock::now();
+        auto ms = duration_cast<milliseconds>(t2 - t1);
+        log(true, 0, "[TIME] Iteration number " + to_string(i) + " took " + to_string(ms.count()) + " ms\n");
     }
 
     Graph* g_star = new Graph(g_up->V);
