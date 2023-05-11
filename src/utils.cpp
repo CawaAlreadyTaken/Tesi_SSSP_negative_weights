@@ -4,6 +4,20 @@
 
 bool terminateLDD;
 
+void log(bool _cerr, int depth, string message) {
+    if (_cerr) {
+        cerr << "[DEBUG] ";
+        for (int i=0; i<depth; ++i)
+            cerr << '\t';
+        cerr << message << endl;
+    } else {
+        cout << "[SSSP] ";
+        for (int i=0; i<depth; ++i)
+            cout << '\t';
+        cout << message << endl;
+    }
+}
+
 double d_min(double a, double b) {
     if (a < b)
         return a;
@@ -44,8 +58,8 @@ int roundB(int b) {
 }
 
 SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
-    //cout << "[PARTIAL RESULT] Dijkstra on graph:" << endl;
-    //csacademy_printGraph(g);
+    log(false, 0, "Executing Dijkstra on graph:");
+    printGraph(g, 0, false);
 
     /* DEBUG INPUT REQUIREMENTS */
     for (int i : g->V) {
@@ -238,8 +252,9 @@ Graph* mergeGraphs(Graph* g1, Graph* g2, int INPUT_N) {
 }
 
 vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
-    cerr << "[DEBUG] Computing SCCs..." << endl;
-    cerr << "[DEBUG] Graph has " << g->V.size() << " vertices" << endl;
+    log(true, 0, "Computing SCCs...");
+    string s_log = "Graph has " + to_string(g->V.size()) + " vertices";
+    log(true, 0, s_log);
     vector<set<int>> result;
     vector<bool> visited(INPUT_N, false);
     stack<int> s;
@@ -258,7 +273,8 @@ vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
             result.push_back(component);
         }
     }
-    cerr << "[DEBUG] SCCs computed. SCCs number: " << result.size() << endl;
+    s_log = "SCCs computed. SCCs number: " + to_string(result.size());
+    log(true, 0, s_log);
     return result;
 }
 
@@ -343,32 +359,19 @@ void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>
     s.push(index);
 }
 
-void printGraph(Graph* g) {
-    cerr << "[DEBUG] PrintGraph:" << endl;
-    cerr << "[DEBUG] Graph has " << g->V.size() << " vertices:" << endl;
-    cerr << "[DEBUG] ";
+void printGraph(Graph* g, int depth, bool cerr) {
+    log(cerr, depth, "PrintGraph:");
+    log(cerr, depth, "Graph has " + to_string(g->V.size()) + " vertices:");
+    string s = "";
     for (int i : g->V) {
-        cerr << i << ' ';
+        s += to_string(i) + " ";
     }
-    cerr << endl;
+    log(cerr, depth, s);
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j]) {
-                cerr << "[DEBUG] " << i << " -> " << j << " : " << g->adj[i][j] << endl;
+                log(cerr, depth, to_string(i) + " -> " + to_string(j) + " : " + to_string(g->adj[i][j]));
             }
-        }
-    }
-    cerr << endl << endl;
-}
-
-void csacademy_printGraph(Graph* g) {
-    for (int i : g->V) {
-        cout << i << endl;
-    }
-    for (int i : g->V) {
-        for (int j : g->V) {
-            if (g->is_edge[i][j])
-                cout << i << ' ' << j << ' ' << g->adj[i][j] << endl;
         }
     }
 }
@@ -407,11 +410,14 @@ Graph * addDummySource(Graph* g, int INPUT_N) {
 void print_shortest_path_tree(SSSP_Result result) {
     vector<vector<int>> shortest_paths = result.shortest_paths_tree->adj;
     for (int i = 0; i < shortest_paths.size(); i++) {
-        cout << "[RESULT] Dal nodo " << i << ":" << endl;
+        string s = "Dal nodo " + to_string(i) + ":";
+        log(false, 0, s);
         for (int j = 0; j < shortest_paths[i].size(); j++) {
-            if (result.shortest_paths_tree->is_edge[i][j])
-                cout << "[RESULT] al nodo " << j << ": " << result.shortest_paths_tree->adj[i][j] << endl;
+            if (result.shortest_paths_tree->is_edge[i][j]) {
+                string s = "al nodo " + to_string(j) + ": " + to_string(result.shortest_paths_tree->adj[i][j]);
+                log(false, 0, s);
+            }
         }
-        cout << endl;
+        log(false, 0, "");
     }
 }

@@ -15,6 +15,8 @@ using namespace std;
 
 extern bool terminateLDD;
 
+void log(bool _cerr, int depth, string message);
+
 int roundB(int b);
 double d_min(double a, double b);
 SSSP_Result dijkstra(Graph* g, int s, int INPUT_N);
@@ -35,8 +37,7 @@ void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s);
 void DFSaddComp(Graph* g, int v, vector<bool>& visited, set<int>& component);
 vector<set<int>> topologicalSort(vector<set<int>> SCCs, Graph* graph, vector<int> fromVertixToSCC);
 void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>>& sccAdj);
-void printGraph(Graph* g);
-void csacademy_printGraph(Graph* g);
+void printGraph(Graph* g, int depth, bool cerr);
 bool checkConstantOutDegree(Graph* g);
 Graph* addDummySource(Graph* g, int INPUT_N);
 

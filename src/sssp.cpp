@@ -65,8 +65,7 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPU
 }
 
 set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
-    for (int i = 0; i < depth; i++) cerr << '\t';
-    cerr << "[DEBUG] Entering LDD, D = " << D << endl;
+    log(true, depth, "Entering LDD, D = " + to_string(D));
 
     /* DEBUG INPUT REQUIREMENTS */
     assert(D > 0);
@@ -115,12 +114,10 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
             heavy.insert(v);
     }
     for (int v : in_light) {
-        for (int i = 0; i < depth; i++) cerr << '\t';
-        cerr << "[DEBUG] in_light: " << v << endl;
+        log(true, depth, "in_light: " + to_string(v));
     }
     for (int v : out_light) {
-        for (int i = 0; i < depth; i++) cerr << '\t';
-        cerr << "[DEBUG] out_light: " << v << endl;
+        log(true, depth, "out_light: " + to_string(v));
     }
     // Phase 2: Carve out balls until no light vertices remain
     default_random_engine generator;
@@ -134,17 +131,14 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
         set<pair<int, int>> Ebound = result.second;
         if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate
-            for (int i = 0; i < depth; i++) cerr << '\t';
-            cerr << "[DEBUG] Terminate1?" << endl;
+            log(true, depth, "Terminate1?");
             //terminateLDD = true;
             return fromMatrixToSet(g0->is_edge);
         }
         set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn, INPUT_N), D, INPUT_N, depth+1);
-        for (int i = 0; i < depth; i++) cerr << '\t';
-        cerr << "[DEBUG] Erecurs: " << endl;
+        log(true, depth, "Erecurs size: " + to_string(Erecurs.size()));
         for (auto x : Erecurs) {
-            for (int i = 0; i < depth; i++) cerr << '\t';
-            cerr << "[DEBUG] " << x.first << " " << x.second << endl;
+            log(true, depth, "Erecurs: " + to_string(x.first) + " " + to_string(x.second));
         }
         if (terminateLDD)
             return Erecurs;
@@ -166,8 +160,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
         set<pair<int, int>> Ebound = result.second;
         if (Rv > D/4 || newBallOut.size() > 0.7*graph->V.size()) {
             //return Erem = E(G) and terminate TODO maybe terminate means really terminate
-            for (int i = 0; i < depth; i++) cerr << '\t';
-            cerr << "[DEBUG] Terminate2?" << endl;
+            log(true, depth, "Terminate2?");
             //terminateLDD = true;
             return fromMatrixToSet(g0->is_edge);
         }
@@ -186,15 +179,13 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
     int v = *graph->V.begin();
     set<int> ballInTest = ballIn(g0, v, D/2, INPUT_N).first;
     if (!isSubset(ballInTest, graph->V)) {
-        for (int i = 0; i < depth; i++) cerr << '\t';
-        cerr << "[DEBUG] Terminate3?" << endl;
+        log(true, depth, "Terminate3?");
         //terminateLDD = true;
         return fromMatrixToSet(g0->is_edge);
     }
     set<int> ballOutTest = ballIn(g0, v, D/2, INPUT_N).first;
     if (!isSubset(ballOutTest, graph->V)) {
-        for (int i = 0; i < depth; i++) cerr << '\t';
-        cerr << "[DEBUG] Terminate4?" << endl;
+        log(true, depth, "Terminate4?");
         //terminateLDD = true;
         return fromMatrixToSet(g0->is_edge);
     }
@@ -274,8 +265,8 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
     return c;
 }
 
-PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
-    cerr << "[DEBUG] Entering scaleDown, delta = " << delta << ", B = " << B << endl;
+PriceFunction scaleDown(Graph *graph, int delta, int B, int depth, int INPUT_N) {
+    log(true, depth, "Entering scaleDown, delta = " + to_string(delta) + ", B = " + to_string(B));
 
     /* DEBUG INPUT REQUIREMENTS */
     assert(checkConstantOutDegree(graph));
@@ -320,8 +311,8 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
                 continue;
             H = mergeGraphs(H, induced_graph(graph, SCC, INPUT_N), INPUT_N);
         }
-        printGraph(H);
-        PriceFunction Phi1 = scaleDown(H, delta/2, B, INPUT_N);
+        printGraph(H, depth, true);
+        PriceFunction Phi1 = scaleDown(H, delta/2, B, depth, INPUT_N);
         // phase 2: Make all edges in G^B \ E^rem non-negative
         Graph* graph_B_Phi1 = applyPriceFunction(graph_B, Phi1, INPUT_N);
         Graph* graph_B_Phi1_rem = subtractEdges(graph_B_Phi1, Erem, INPUT_N);
@@ -339,7 +330,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int INPUT_N) {
 }
 
 SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
-    cerr << "[DEBUG] Entering SPMain..." << endl;
+    log(true, 0, "Entering SPmain...");
 
     /* DEBUG INPUT REQUIREMENTS */
     assert(checkConstantOutDegree(g_in));
@@ -365,21 +356,21 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
     // Round B up to nearest power of 2
     int B = 2*g_in->V.size();
     B = roundB(B);
-    cerr << "[DEBUG] B: " << B << endl;
+    log(true, 0, "B: " + to_string(B));
 
     // Identity price function
     PriceFunction Phi0;
     Phi0.prices.assign(INPUT_N, 0);
 
     for (int i = 1; pow(2, i)<=B; i++) {
-        cerr << endl << "[DEBUG] Iteration number " << i << " of SPmain" << endl << endl;
+        log(true, 0, "Iteration number " + to_string(i) + " of SPmain");
         Graph* graph_B_phi0 = new Graph(g_up->V, INPUT_N);
         graph_B_phi0->adj = g_up->adj;
         graph_B_phi0->is_edge = g_up->is_edge;
         // Apply the price function
         graph_B_phi0 = applyPriceFunction(graph_B_phi0, Phi0, INPUT_N);
         // Call scaleDown function
-        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), INPUT_N);
+        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), 0, INPUT_N);
         Phi0 = PriceFunction::sum(Phi0, Psi0);
     }
 

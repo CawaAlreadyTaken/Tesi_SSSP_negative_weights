@@ -13,10 +13,12 @@ int INPUT_N;
 * from_0 to_0 weight_0
 * from_1 to_1 weight_1
 * from_2 to_2 weight_2
-* ...
+* ... (m lines)
 */
 
 int main() {
+
+    /* INPUT */
     // n: number of vertices
     // m: number of edges
     // s: index of source
@@ -35,17 +37,16 @@ int main() {
         int from, to, weight; cin >> from >> to >> weight;
         graph->add_edge(from, to, weight);
     }
-
-    // END INPUT
+    /* INPUT */
 
     // DEBUG PRINT
-    //csacademy_printGraph(graph);
+    // csacademy_printGraph(graph);
 
     SSSP_Result sssp_result = SPmain(graph, s, INPUT_N);
 
     if (sssp_result.has_negative_cycle) {
         // TODO: Maybe print the negative cycle
-        cout << "Graph constains a negative cycle" << endl;
+        log(false, 0, "[RESULT] Graph constains a negative cycle");
     } else {
         print_shortest_path_tree(sssp_result);
     }
