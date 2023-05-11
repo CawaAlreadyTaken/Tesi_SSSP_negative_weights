@@ -2,11 +2,13 @@
 ## Author: _Daniele Cabassi_
 
 ### Per eseguire
+Recarsi dentro la cartella `test`:
 ```bash
-g++ main.cpp sssp.cpp utils.cpp graph.cpp
-./a.out < input1.txt 2>err.out
+test/~ chmod +x compile_run.sh run.sh
+test/~ compile_run.sh <INPUT_NUMBER>
 ```
-Al momento, i messaggi di debug vengono stampati su cerr, quindi ridirezioniamo lo standard error per vedere solamente la soluzione.
+Input number in \[0, 1, ...\].  
+Al momento, i messaggi di debug vengono stampati su cerr, e lo standard error e' redirezionato in un file debug.out
 
 ### Note riguardo al paper
 
