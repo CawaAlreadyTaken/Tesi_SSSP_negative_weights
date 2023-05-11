@@ -15,10 +15,10 @@ class PriceFunction {
 SSSP_Result SPmain(Graph* g_in, int s_in);
 PriceFunction scaleDown(Graph* graph, int delta, int B, int depth);
 PriceFunction elimNeg(Graph* graph);
-set<pair<int, int>> LDD(Graph* graph, int D, int depth);
+PriceFunction FixDAGEdges(Graph* g, vector<set<int>> v);
 pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fromBallIn=false);
 pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R);
-PriceFunction FixDAGEdges(Graph* g, vector<set<int>> v);
+set<pair<int, int>> LDD(Graph* graph, int D, int depth);
 
 #endif
 
