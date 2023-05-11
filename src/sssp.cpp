@@ -4,19 +4,19 @@
 #include <cstdint>
 #include <random>
 
-pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R, int INPUT_N) {
+pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R) {
     // In order to do ballIn, we can reverse the edges and call ballOut
-    Graph* graph_copy = new Graph(graph->V, INPUT_N);
+    Graph* graph_copy = new Graph(graph->V);
     for (int i : graph->V) {
         for (int j : graph->V) {
             if (graph->is_edge[i][j])
                 graph_copy->add_edge(j, i, graph->adj[i][j]);
         }
     }
-    return ballOut(graph_copy, v, R, INPUT_N, true);
+    return ballOut(graph_copy, v, R, true);
 }
 
-pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPUT_N, bool fromBallIn) {
+pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fromBallIn) {
     // basically dijkstra in order to find vertices closer than R
     set<int> ris;
     set<pair<int, int>> boundary;
@@ -64,7 +64,7 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPU
     return {ris, boundary};
 }
 
-set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
+set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
     log(true, depth, "Entering LDD, D = " + to_string(D));
 
     /* DEBUG INPUT REQUIREMENTS */
@@ -78,22 +78,22 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
     /* DEBUG INPUT REQUIREMENTS */
 
     // Save a copy of the original graph, since we are going to modify it
-    Graph* g0 = new Graph(graph->V, INPUT_N);
+    Graph* g0 = new Graph(graph->V);
     g0->adj = graph->adj;
     g0->is_edge = graph->is_edge;
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
     int k = 10*log(INPUT_N);  // TODO: change this
-    set<int> S = getRandomVertices(graph, k, INPUT_N);
+    set<int> S = getRandomVertices(graph, k);
 
     map<int, set<int>> ballInIntersec;
     map<int, set<int>> ballOutIntersec;
 
     // Da ricontrollare
     for (int x : S) {
-        set<int> bIn = ballIn(graph, x, D/4, INPUT_N).first;
-        set<int> bOut = ballOut(graph, x, D/4, INPUT_N).first;
+        set<int> bIn = ballIn(graph, x, D/4).first;
+        set<int> bOut = ballOut(graph, x, D/4).first;
         for (int z : bIn)
             ballOutIntersec[z].insert(x);
         for (int z : bOut)
@@ -126,7 +126,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
         int Rv = distribution(generator)+1; // TODO check this
-        auto result = ballIn(graph, v, Rv, INPUT_N);
+        auto result = ballIn(graph, v, Rv);
         set<int> newBallIn = result.first;
         set<pair<int, int>> Ebound = result.second;
         if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
@@ -135,7 +135,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
             //terminateLDD = true;
             return fromMatrixToSet(g0->is_edge);
         }
-        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn, INPUT_N), D, INPUT_N, depth+1);
+        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn), D, depth+1);
         log(true, depth, "Erecurs size: " + to_string(Erecurs.size()));
         for (auto x : Erecurs) {
             log(true, depth, "Erecurs: " + to_string(x.first) + " " + to_string(x.second));
@@ -143,7 +143,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
         if (terminateLDD)
             return Erecurs;
         Erem = edgesUnion(edgesUnion(Erem, Ebound), Erecurs);
-        graph = subtractVertices(graph, newBallIn, INPUT_N);
+        graph = subtractVertices(graph, newBallIn);
         for (auto x : newBallIn) {
             in_light.erase(x);
             out_light.erase(x);
@@ -155,7 +155,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
         int Rv = distribution(generator)+1; // TODO check this
-        auto result = ballOut(graph, v, Rv, INPUT_N);
+        auto result = ballOut(graph, v, Rv);
         set<int> newBallOut = result.first;
         set<pair<int, int>> Ebound = result.second;
         if (Rv > D/4 || newBallOut.size() > 0.7*graph->V.size()) {
@@ -164,11 +164,11 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
             //terminateLDD = true;
             return fromMatrixToSet(g0->is_edge);
         }
-        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallOut, INPUT_N), D, INPUT_N, depth+1);
+        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallOut), D, depth+1);
         if (terminateLDD)
             return Erecurs;
         Erem = edgesUnion(edgesUnion(Erem, Ebound), Erecurs);
-        graph = subtractVertices(graph, newBallOut, INPUT_N);
+        graph = subtractVertices(graph, newBallOut);
         for (auto x : newBallOut) {
             out_light.erase(x);
         }
@@ -177,13 +177,13 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
     // Clean Up: check that remaining vertices  have small weak diameter in initial input graph G0
     // TODO: check if terminate means really terminate
     int v = *graph->V.begin();
-    set<int> ballInTest = ballIn(g0, v, D/2, INPUT_N).first;
+    set<int> ballInTest = ballIn(g0, v, D/2).first;
     if (!isSubset(ballInTest, graph->V)) {
         log(true, depth, "Terminate3?");
         //terminateLDD = true;
         return fromMatrixToSet(g0->is_edge);
     }
-    set<int> ballOutTest = ballIn(g0, v, D/2, INPUT_N).first;
+    set<int> ballOutTest = ballIn(g0, v, D/2).first;
     if (!isSubset(ballOutTest, graph->V)) {
         log(true, depth, "Terminate4?");
         //terminateLDD = true;
@@ -193,13 +193,13 @@ set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth) {
     return Erem;
 }
 
-PriceFunction elimNeg(Graph *g, int INPUT_N) {
+PriceFunction elimNeg(Graph *g) {
 
     /* DEBUG INPUT REQUIREMENTS */
     assert(checkConstantOutDegree(g));
     /* END DEBUG INPUT REQUIREMENTS */
 
-    Graph* graph = addDummySource(g, INPUT_N);
+    Graph* graph = addDummySource(g);
     int s = 0; // Dummy source
 
     set<pair<int, int>> e = fromMatrixToSet(graph->is_edge);
@@ -265,7 +265,7 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
     return c;
 }
 
-PriceFunction scaleDown(Graph *graph, int delta, int B, int depth, int INPUT_N) {
+PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
     log(true, depth, "Entering scaleDown, delta = " + to_string(delta) + ", B = " + to_string(B));
 
     /* DEBUG INPUT REQUIREMENTS */
@@ -284,7 +284,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth, int INPUT_N) 
     Graph* graph_B_Phi2;
     if (delta > 2) {
         int d = delta/2;
-        Graph* graph_B_pos = new Graph(graph->V, INPUT_N);
+        Graph* graph_B_pos = new Graph(graph->V);
         graph_B_pos->adj = graph->adj;
         graph_B_pos->is_edge = graph->is_edge;
 
@@ -299,37 +299,37 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth, int INPUT_N) 
 
         // phase 0: Decompose V to SCCs V1, V2... with weak diameter dB in G
         terminateLDD = false;
-        set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, INPUT_N, 0);
+        set<pair<int, int>> Erem = LDD(graph_B_pos, d*B, 0);
         terminateLDD = false;
-        Graph* graph_B = addIntegerToNegativeEdges(graph, B, INPUT_N);
-        Graph* graph_B_rem = subtractEdges(graph_B, Erem, INPUT_N);
-        vector<set<int>> SCCs = computeSCCs(graph_B_rem, INPUT_N);
+        Graph* graph_B = addIntegerToNegativeEdges(graph, B);
+        Graph* graph_B_rem = subtractEdges(graph_B, Erem);
+        vector<set<int>> SCCs = computeSCCs(graph_B_rem);
         // phase 1: Make edges inside the SCCs G^B[V_i] non-negative
-        Graph* H = induced_graph(graph, *SCCs.begin(), INPUT_N);
+        Graph* H = induced_graph(graph, *SCCs.begin());
         for (set<int> SCC : SCCs) {
             if (SCC == *SCCs.begin())
                 continue;
-            H = mergeGraphs(H, induced_graph(graph, SCC, INPUT_N), INPUT_N);
+            H = mergeGraphs(H, induced_graph(graph, SCC));
         }
         printGraph(H, depth, true);
-        PriceFunction Phi1 = scaleDown(H, delta/2, B, depth, INPUT_N);
+        PriceFunction Phi1 = scaleDown(H, delta/2, B, depth);
         // phase 2: Make all edges in G^B \ E^rem non-negative
-        Graph* graph_B_Phi1 = applyPriceFunction(graph_B, Phi1, INPUT_N);
-        Graph* graph_B_Phi1_rem = subtractEdges(graph_B_Phi1, Erem, INPUT_N);
-        PriceFunction psi = FixDAGEdges(graph_B_Phi1_rem, SCCs, INPUT_N);
+        Graph* graph_B_Phi1 = applyPriceFunction(graph_B, Phi1);
+        Graph* graph_B_Phi1_rem = subtractEdges(graph_B_Phi1, Erem);
+        PriceFunction psi = FixDAGEdges(graph_B_Phi1_rem, SCCs);
         Phi2 = PriceFunction::sum(Phi1, psi);
     } else {
         Phi2.prices.assign(INPUT_N, 0);
     }
     // phase 3: Make all edges in G^B non-negative
-    graph_B_Phi2 = applyPriceFunction(addIntegerToNegativeEdges(graph, B, INPUT_N), Phi2, INPUT_N);
-    PriceFunction psi_first = elimNeg(graph_B_Phi2, INPUT_N);
+    graph_B_Phi2 = applyPriceFunction(addIntegerToNegativeEdges(graph, B), Phi2);
+    PriceFunction psi_first = elimNeg(graph_B_Phi2);
     PriceFunction Phi3 = PriceFunction::sum(Phi2, psi_first);
 
     return Phi3;
 }
 
-SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
+SSSP_Result SPmain(Graph* g_in, int s_in) {
     log(true, 0, "Entering SPmain...");
 
     /* DEBUG INPUT REQUIREMENTS */
@@ -343,7 +343,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
     }
     /* END DEBUG INPUT REQUIREMENTS */
 
-    Graph* g_up = new Graph(g_in->V, INPUT_N);
+    Graph* g_up = new Graph(g_in->V);
     g_up->adj = g_in->adj;
     g_up->is_edge = g_in->is_edge;
     for (int i : g_up->V) {
@@ -364,17 +364,17 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
 
     for (int i = 1; pow(2, i)<=B; i++) {
         log(true, 0, "Iteration number " + to_string(i) + " of SPmain");
-        Graph* graph_B_phi0 = new Graph(g_up->V, INPUT_N);
+        Graph* graph_B_phi0 = new Graph(g_up->V);
         graph_B_phi0->adj = g_up->adj;
         graph_B_phi0->is_edge = g_up->is_edge;
         // Apply the price function
-        graph_B_phi0 = applyPriceFunction(graph_B_phi0, Phi0, INPUT_N);
+        graph_B_phi0 = applyPriceFunction(graph_B_phi0, Phi0);
         // Call scaleDown function
-        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), 0, INPUT_N);
+        PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), 0);
         Phi0 = PriceFunction::sum(Phi0, Psi0);
     }
 
-    Graph* g_star = new Graph(g_up->V, INPUT_N);
+    Graph* g_star = new Graph(g_up->V);
     g_star->adj = g_up->adj;
     g_star->is_edge = g_up->is_edge;
     for (int j : g_star->V) {
@@ -384,11 +384,11 @@ SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N) {
         }
     }
 
-    SSSP_Result result = dijkstra(g_star, s_in, INPUT_N);
+    SSSP_Result result = dijkstra(g_star, s_in);
     return result;
 }
 
-PriceFunction FixDAGEdges(Graph* graph, vector<set<int>> SCCs, int INPUT_N) {
+PriceFunction FixDAGEdges(Graph* graph, vector<set<int>> SCCs) {
     PriceFunction Phi;
     Phi.prices.assign(INPUT_N, 0);
     // Sort SCCs vector in topological order

@@ -3,6 +3,7 @@
 #include "sssp.h"
 
 bool terminateLDD;
+int INPUT_N;
 
 void log(bool _cerr, int depth, string message) {
     if (_cerr) {
@@ -24,7 +25,7 @@ double d_min(double a, double b) {
     return b;
 }
 
-set<int> getRandomVertices(Graph* g, int k, int INPUT_N) {
+set<int> getRandomVertices(Graph* g, int k) {
     set<int> vertices;
     while (k--) {
         int randomVert = rand() % INPUT_N;
@@ -57,7 +58,7 @@ int roundB(int b) {
     return k;
 }
 
-SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
+SSSP_Result dijkstra(Graph* g, int s) {
     log(false, 0, "Executing Dijkstra on graph:");
     printGraph(g, 0, false);
 
@@ -115,15 +116,15 @@ SSSP_Result dijkstra(Graph* g, int s, int INPUT_N) {
     }
     
     // Compose result tree
-    result.shortest_paths_tree = new Graph(g->V, INPUT_N);
+    result.shortest_paths_tree = new Graph(g->V);
     result.shortest_paths_tree->adj = result_adj;
     result.shortest_paths_tree->is_edge = result_is_edge;
 
     return result;
 }
 
-Graph* induced_graph(Graph* g, set<int> vertices, int INPUT_N) {
-    Graph* result = new Graph(vertices, INPUT_N);
+Graph* induced_graph(Graph* g, set<int> vertices) {
+    Graph* result = new Graph(vertices);
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j] && vertices.find(i)!=vertices.end() && vertices.find(j)!=vertices.end()) {
@@ -142,7 +143,7 @@ set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>> b) {
     return a;
 }
 
-Graph* subtractVertices(Graph* g, set<int> vertices, int INPUT_N) {
+Graph* subtractVertices(Graph* g, set<int> vertices) {
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
     set<int> resultV;
@@ -157,14 +158,14 @@ Graph* subtractVertices(Graph* g, set<int> vertices, int INPUT_N) {
             }
         }
     }
-    Graph* result = new Graph(resultV, INPUT_N);
+    Graph* result = new Graph(resultV);
     result->adj = resultAdj;
     result->is_edge = resultIsEdge;
     return result;
 }
 
-Graph* subtractEdges(Graph* g, set<pair<int, int>> edges, int INPUT_N) {
-    Graph* result = new Graph(g->V, INPUT_N);
+Graph* subtractEdges(Graph* g, set<pair<int, int>> edges) {
+    Graph* result = new Graph(g->V);
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j] && edges.find({i, j})==edges.end()) {
@@ -196,8 +197,8 @@ bool isSubset(set<int> a, set<int> b) {
     return true;
 }
 
-Graph* applyPriceFunction(Graph* g, PriceFunction p, int INPUT_N) {
-    Graph* result = new Graph(g->V, INPUT_N);
+Graph* applyPriceFunction(Graph* g, PriceFunction p) {
+    Graph* result = new Graph(g->V);
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j]) {
@@ -209,8 +210,8 @@ Graph* applyPriceFunction(Graph* g, PriceFunction p, int INPUT_N) {
     return result;
 }
 
-Graph* addIntegerToNegativeEdges(Graph* g, int e, int INPUT_N) {
-    Graph* result = new Graph(g->V, INPUT_N);
+Graph* addIntegerToNegativeEdges(Graph* g, int e) {
+    Graph* result = new Graph(g->V);
     result->adj = g->adj;
     result->is_edge = g->is_edge;
     for (int i : g->V) {
@@ -223,7 +224,7 @@ Graph* addIntegerToNegativeEdges(Graph* g, int e, int INPUT_N) {
     return result;
 }
 
-Graph* mergeGraphs(Graph* g1, Graph* g2, int INPUT_N) {
+Graph* mergeGraphs(Graph* g1, Graph* g2) {
     set<int> resultVertices;
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
@@ -245,13 +246,13 @@ Graph* mergeGraphs(Graph* g1, Graph* g2, int INPUT_N) {
             }
         }
     }
-    Graph* result = new Graph(resultVertices, INPUT_N);
+    Graph* result = new Graph(resultVertices);
     result->adj = resultAdj;
     result->is_edge = resultIsEdge;
     return result;
 }
 
-vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
+vector<set<int>> computeSCCs(Graph* g) {
     log(true, 0, "Computing SCCs...");
     string s_log = "Graph has " + to_string(g->V.size()) + " vertices";
     log(true, 0, s_log);
@@ -263,7 +264,7 @@ vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
             DFS(g, v, visited, s);
     }
     visited.assign(INPUT_N, false);
-    Graph* gT = transpose(g, INPUT_N);
+    Graph* gT = transpose(g);
     while (!s.empty()) {
         int v = s.top();
         s.pop();
@@ -278,8 +279,8 @@ vector<set<int>> computeSCCs(Graph* g, int INPUT_N) {
     return result;
 }
 
-Graph* transpose(Graph* g, int INPUT_N) {
-    Graph* result = new Graph(g->V, INPUT_N);
+Graph* transpose(Graph* g) {
+    Graph* result = new Graph(g->V);
     for (int i : g->V) {
         for (int j : g->V) {
             if (g->is_edge[i][j]) {
@@ -393,8 +394,8 @@ bool checkConstantOutDegree(Graph* graph) {
     return true;
 }
 
-Graph * addDummySource(Graph* g, int INPUT_N) {
-    Graph* graph = new Graph(g->V, INPUT_N);
+Graph * addDummySource(Graph* g) {
+    Graph* graph = new Graph(g->V);
     graph->adj = g->adj;
     graph->is_edge = g->is_edge;
 
@@ -408,6 +409,7 @@ Graph * addDummySource(Graph* g, int INPUT_N) {
 }
 
 void print_shortest_path_tree(SSSP_Result result) {
+    log(false, 0, "Shortest paths tree:");
     vector<vector<int>> shortest_paths = result.shortest_paths_tree->adj;
     for (int i = 0; i < shortest_paths.size(); i++) {
         string s = "Dal nodo " + to_string(i) + ":";

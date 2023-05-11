@@ -6,8 +6,6 @@
 
 using namespace std;
 
-int INPUT_N;
-
 /* INPUT FORMAT:
 * n m s
 * from_0 to_0 weight_0
@@ -30,19 +28,16 @@ int main() {
     set<int> vertices;
     for (int i = 1; i <= n; i++)
         vertices.insert(i);
-    Graph* graph = new Graph(vertices, INPUT_N);
+    Graph* graph = new Graph(vertices);
 
     // Receive in input all edges
     for (int i = 0; i < m; i++) {
         int from, to, weight; cin >> from >> to >> weight;
         graph->add_edge(from, to, weight);
     }
-    /* INPUT */
+    /* END INPUT */
 
-    // DEBUG PRINT
-    // csacademy_printGraph(graph);
-
-    SSSP_Result sssp_result = SPmain(graph, s, INPUT_N);
+    SSSP_Result sssp_result = SPmain(graph, s);
 
     if (sssp_result.has_negative_cycle) {
         // TODO: Maybe print the negative cycle

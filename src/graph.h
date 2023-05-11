@@ -11,7 +11,7 @@ class Graph {
     vector<vector<int>> adj;
     vector<vector<bool>> is_edge;
     set<int> V;
-    Graph(set<int> v, int INPUT_N);
+    Graph(set<int> v);
     void add_edge(int from, int to, int weight);
 };
 

@@ -12,13 +12,13 @@ class PriceFunction {
     static PriceFunction sum(PriceFunction a, PriceFunction b);
 };
 
-SSSP_Result SPmain(Graph* g_in, int s_in, int INPUT_N);
-PriceFunction scaleDown(Graph* graph, int delta, int B, int depth, int INPUT_N);
-PriceFunction elimNeg(Graph* graph, int INPUT_N);
-set<pair<int, int>> LDD(Graph* graph, int D, int INPUT_N, int depth);
-pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, int INPUT_N, bool fromBallIn=false);
-pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R, int INPUT_N);
-PriceFunction FixDAGEdges(Graph* g, vector<set<int>> v, int INPUT_N);
+SSSP_Result SPmain(Graph* g_in, int s_in);
+PriceFunction scaleDown(Graph* graph, int delta, int B, int depth);
+PriceFunction elimNeg(Graph* graph);
+set<pair<int, int>> LDD(Graph* graph, int D, int depth);
+pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fromBallIn=false);
+pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R);
+PriceFunction FixDAGEdges(Graph* g, vector<set<int>> v);
 
 #endif
 
