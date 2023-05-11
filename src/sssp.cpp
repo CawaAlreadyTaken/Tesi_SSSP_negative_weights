@@ -65,6 +65,7 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fro
 }
 
 set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
+    // O(m log^2(n)+n log^3 n)
     log(true, depth, "Entering LDD, D = " + to_string(D));
 
     /* DEBUG INPUT REQUIREMENTS */
@@ -267,6 +268,7 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
 }
 
 PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
+    // O(m log^3(n)log(delta))
     log(true, depth, "Entering scaleDown, delta = " + to_string(delta) + ", B = " + to_string(B));
 
     /* DEBUG INPUT REQUIREMENTS */
@@ -335,6 +337,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
 }
 
 SSSP_Result SPmain(Graph* g_in, int s_in) {
+    // O(m log^5(n))
     log(true, 0, "Entering SPmain...");
 
     /* DEBUG INPUT REQUIREMENTS */
