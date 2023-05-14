@@ -8,8 +8,8 @@
 import random
 
 S = 1
-N = 100
-D = 6
+N = 400
+D = 1
 X = 10
 P = 0.005
 assert D < N
