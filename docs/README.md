@@ -2,10 +2,10 @@
 ## Author: _Daniele Cabassi_
 
 ### Per eseguire
-Recarsi dentro la cartella `test`:
+Recarsi dentro la cartella `testing`:
 ```bash
-test/~ chmod +x compile_run.sh run.sh
-test/~ compile_run.sh <INPUT_NUMBER>
+testing/~ chmod +x compile_run.sh run.sh
+testing/~ compile_run.sh <INPUT_NUMBER>
 ```
 Input number in \[0, 1, ...\].  
 Al momento, i messaggi di debug vengono stampati su cerr, e lo standard error e' redirezionato in un file debug.out
