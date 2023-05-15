@@ -161,6 +161,7 @@ Graph* subtractVertices(Graph* g, set<int> vertices) {
     Graph* result = new Graph(resultV);
     result->adj = resultAdj;
     result->is_edge = resultIsEdge;
+    delete g;
     return result;
 }
 
@@ -249,6 +250,8 @@ Graph* mergeGraphs(Graph* g1, Graph* g2) {
     Graph* result = new Graph(resultVertices);
     result->adj = resultAdj;
     result->is_edge = resultIsEdge;
+    delete g1;
+    delete g2;
     return result;
 }
 
@@ -276,6 +279,8 @@ vector<set<int>> computeSCCs(Graph* g) {
     }
     s_log = "SCCs computed. SCCs number: " + to_string(result.size());
     log(true, 0, s_log);
+    delete gT;
+    delete g;
     return result;
 }
 
@@ -394,7 +399,7 @@ bool checkConstantOutDegree(Graph* graph) {
     return true;
 }
 
-Graph * addDummySource(Graph* g) {
+Graph* addDummySource(Graph* g) {
     Graph* graph = new Graph(g->V);
     graph->adj = g->adj;
     graph->is_edge = g->is_edge;

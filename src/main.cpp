@@ -41,6 +41,7 @@ int main() {
     printGraph(graph, 0, false);
 
     SSSP_Result sssp_result = SPmain(graph, s);
+    delete graph;
 
     if (sssp_result.has_negative_cycle) {
         // TODO: Maybe print the negative cycle

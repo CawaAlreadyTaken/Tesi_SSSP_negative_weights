@@ -61,6 +61,8 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fro
         }
     }
 
+    if (fromBallIn)
+        delete graph;
     return {ris, boundary};
 }
 
@@ -134,15 +136,21 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
             //return Erem = E(G) and terminate
             log(true, depth, "Terminate1?");
             //terminateLDD = true;
-            return fromMatrixToSet(g0->is_edge);
+            set<pair<int, int>> result = fromMatrixToSet(g0->is_edge);
+            delete g0;
+            return result;
         }
-        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallIn), D, depth+1);
+        Graph* inducedGraph = induced_graph(graph, newBallIn);
+        set<pair<int, int>> Erecurs = LDD(inducedGraph, D, depth+1);
+        delete inducedGraph;
         log(true, depth, "Erecurs size: " + to_string(Erecurs.size()));
         for (auto x : Erecurs) {
             log(true, depth, "Erecurs: " + to_string(x.first) + " " + to_string(x.second));
         }
-        if (terminateLDD)
+        if (terminateLDD) {
+            delete g0;
             return Erecurs;
+        }
         Erem = edgesUnion(edgesUnion(Erem, Ebound), Erecurs);
         graph = subtractVertices(graph, newBallIn);
         for (auto x : newBallIn) {
@@ -163,11 +171,17 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
             //return Erem = E(G) and terminate TODO maybe terminate means really terminate
             log(true, depth, "Terminate2?");
             //terminateLDD = true;
-            return fromMatrixToSet(g0->is_edge);
+            set<pair<int, int>> result = fromMatrixToSet(g0->is_edge);
+            delete g0;
+            return result;
         }
-        set<pair<int, int>> Erecurs = LDD(induced_graph(graph, newBallOut), D, depth+1);
-        if (terminateLDD)
+        Graph* inducedGraph = induced_graph(graph, newBallOut);
+        set<pair<int, int>> Erecurs = LDD(inducedGraph, D, depth+1);
+        delete inducedGraph;
+        if (terminateLDD) {
+            delete g0;
             return Erecurs;
+        }
         Erem = edgesUnion(edgesUnion(Erem, Ebound), Erecurs);
         graph = subtractVertices(graph, newBallOut);
         for (auto x : newBallOut) {
@@ -182,15 +196,20 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
     if (!isSubset(ballInTest, graph->V)) {
         log(true, depth, "Terminate3?");
         //terminateLDD = true;
-        return fromMatrixToSet(g0->is_edge);
+        set<pair<int, int>> result = fromMatrixToSet(g0->is_edge);
+        delete g0;
+        return result;
     }
     set<int> ballOutTest = ballIn(g0, v, D/2).first;
     if (!isSubset(ballOutTest, graph->V)) {
         log(true, depth, "Terminate4?");
         //terminateLDD = true;
-        return fromMatrixToSet(g0->is_edge);
+        set<pair<int, int>> result = fromMatrixToSet(g0->is_edge);
+        delete g0;
+        return result;
     }
     
+    delete g0;
     return Erem;
 }
 
@@ -255,6 +274,7 @@ PriceFunction elimNeg(Graph *g) {
         assert(result.prices[i] != INT32_MAX);
     }
     /* END DEBUG */
+    delete graph;
     return result;
 }
 
@@ -318,13 +338,17 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
                 continue;
             H = mergeGraphs(H, induced_graph(graph, SCC));
         }
-        printGraph(H, depth, true);
         PriceFunction Phi1 = scaleDown(H, delta/2, B, depth);
         // phase 2: Make all edges in G^B \ E^rem non-negative
         Graph* graph_B_Phi1 = applyPriceFunction(graph_B, Phi1);
         Graph* graph_B_Phi1_rem = subtractEdges(graph_B_Phi1, Erem);
         PriceFunction psi = FixDAGEdges(graph_B_Phi1_rem, SCCs);
         Phi2 = PriceFunction::sum(Phi1, psi);
+        delete graph_B_pos;
+        delete graph_B;
+        delete H;
+        //delete graph_B_Phi1;
+        //delete graph_B_Phi1_rem;
     } else {
         Phi2.prices.assign(INPUT_N, 0);
     }
@@ -333,6 +357,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
     PriceFunction psi_first = elimNeg(graph_B_Phi2);
     PriceFunction Phi3 = PriceFunction::sum(Phi2, psi_first);
 
+    delete graph_B_Phi2;
     return Phi3;
 }
 
@@ -381,6 +406,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
         // Call scaleDown function
         PriceFunction Psi0 = scaleDown(graph_B_phi0, g_in->V.size(), B/pow(2, i), 0);
         Phi0 = PriceFunction::sum(Phi0, Psi0);
+        delete graph_B_phi0;
         auto t2 = high_resolution_clock::now();
         auto ms = duration_cast<milliseconds>(t2 - t1);
         log(true, 0, "[TIME] Iteration number " + to_string(i) + " took " + to_string(ms.count()) + " ms\n");
@@ -397,6 +423,8 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
     }
 
     SSSP_Result result = dijkstra(g_star, s_in);
+    delete g_up;
+    delete g_star;
     return result;
 }
 
