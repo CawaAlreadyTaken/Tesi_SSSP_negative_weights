@@ -9,7 +9,7 @@ import random
 
 S = 1
 N = 400
-D = 1
+D = 4
 X = 10
 P = 0.005
 assert D < N
