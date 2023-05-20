@@ -23,7 +23,7 @@ extern int INPUT_N;
 int roundB(int b);
 double d_min(double a, double b);
 set<int> getRandomVertices(Graph* g, int k);
-set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>> b);
+set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>>& b);
 set<pair<int, int>> fromMatrixToSet(vector<vector<bool>> isEdge);
 set<pair<int, int>> edgesMinusEdges(set<pair<int, int>> a, set<pair<int, int>> b);
 Graph* induced_graph(Graph* g, set<int> vertices);
@@ -42,7 +42,7 @@ void printGraph(Graph* g, int depth, bool cerr);
 void print_shortest_path_tree(SSSP_Result result);
 bool isSubset(set<int> a, set<int> b);
 bool checkConstantOutDegree(Graph* g);
-vector<set<int>> computeSCCs(Graph* g);
+vector<set<int>> computeSCCs(Graph* g, int depth);
 vector<set<int>> topologicalSort(vector<set<int>> SCCs, Graph* graph, vector<int> fromVertixToSCC);
 SSSP_Result dijkstra(Graph* g, int s);
 

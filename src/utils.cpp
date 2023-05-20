@@ -136,7 +136,7 @@ Graph* induced_graph(Graph* g, set<int> vertices) {
     return result;
 }
 
-set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>> b) {
+set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>>& b) {
     for (auto i:b) {
         a.insert(i);
     }
@@ -255,10 +255,10 @@ Graph* mergeGraphs(Graph* g1, Graph* g2) {
     return result;
 }
 
-vector<set<int>> computeSCCs(Graph* g) {
-    log(true, 0, "Computing SCCs...");
+vector<set<int>> computeSCCs(Graph* g, int depth) {
+    log(true, depth, "Computing SCCs...");
     string s_log = "Graph has " + to_string(g->V.size()) + " vertices";
-    log(true, 0, s_log);
+    log(true, depth, s_log);
     vector<set<int>> result;
     vector<bool> visited(INPUT_N, false);
     stack<int> s;
@@ -278,7 +278,7 @@ vector<set<int>> computeSCCs(Graph* g) {
         }
     }
     s_log = "SCCs computed. SCCs number: " + to_string(result.size());
-    log(true, 0, s_log);
+    log(true, depth, s_log);
     delete gT;
     delete g;
     return result;

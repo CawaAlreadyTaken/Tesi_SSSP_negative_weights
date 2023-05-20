@@ -8,7 +8,7 @@
 import random
 
 S = 1
-N = 400
+N = 2000
 D = 4
 X = 10
 P = 0.005
