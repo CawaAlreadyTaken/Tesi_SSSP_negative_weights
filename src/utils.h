@@ -34,6 +34,7 @@ Graph* applyPriceFunction(Graph* g, PriceFunction p);
 Graph* mergeGraphs(Graph* g1, Graph* g2);
 Graph* transpose(Graph* g);
 Graph* addDummySource(Graph* g);
+Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>> SCCs);
 void log(bool _cerr, int depth, string message);
 void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s);
 void DFSaddComp(Graph* g, int v, vector<bool>& visited, set<int>& component);

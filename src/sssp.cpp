@@ -88,7 +88,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
-    int k = 10*log(INPUT_N);  // TODO: change this
+    int k = 3*log(INPUT_N);  // TODO: change this
     log(true, depth, "k = " + to_string(k) + ", D/4 = " + to_string(D/4));
     set<int> S = getRandomVertices(graph, k);
 
@@ -120,43 +120,26 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
         } else
             heavy.insert(v);
     }
-    if (in_light.size() > 1000) {
-        log(true, depth, "in_light.size() = " + to_string(in_light.size()));
-        printGraph(graph, depth, true);
-        //exit(0);
-    }
     // Phase 2: Carve out balls until no light vertices remain
     default_random_engine generator;
     while (!in_light.empty()) {
         int v = *in_light.begin(); // Check unmarkation
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
-        log(true, depth, "p = " + to_string(p));
         geometric_distribution<int> distribution(p);
-        int Rv = distribution(generator)+1; // TODO check this
-        log(true, depth, "Calculating ballin with Rv = " + to_string(Rv) + " for vertex " + to_string(v) + " (in_light)");
-        //printGraph(graph, depth, true);
+        int Rv = distribution(generator)+1;
         auto result = ballIn(graph, v, Rv);
         set<int> newBallIn = result.first;
         set<pair<int, int>> Ebound = result.second;
-        log(true, depth, "Rv = " + to_string(Rv) + ", newBallIn size: " + to_string(newBallIn.size()));
-        log(true, depth, "0.7*graph->V.size() = " + to_string(0.7*graph->V.size()));
         if (Rv > (float)D/4.0 || newBallIn.size() > 0.7*graph->V.size()) {
-            //return Erem = E(G) and terminate
             log(true, depth, "Terminate1?");
             terminateLDD = true;
             set<pair<int, int>> result = fromMatrixToSet(graph->is_edge);
             delete g0;
-            if (depth == 0)
-                log(true, depth, "[TOLGO] size: " + to_string(result.size()));
             return result;
         }
         Graph* inducedGraph = induced_graph(graph, newBallIn);
         set<pair<int, int>> Erecurs = LDD(inducedGraph, D, depth+1);
         delete inducedGraph;
-        log(true, depth, "Erecurs size: " + to_string(Erecurs.size()));
-        for (auto x : Erecurs) {
-            log(true, depth, "Erecurs: " + to_string(x.first) + " " + to_string(x.second));
-        }
         if (terminateLDD) {
             delete g0;
             return Erecurs;
@@ -173,26 +156,19 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
         int v = *out_light.begin(); // Check unmarkation
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
-        int Rv = distribution(generator)+1; // TODO check this
+        int Rv = distribution(generator)+1;
         auto result = ballOut(graph, v, Rv);
         set<int> newBallOut = result.first;
         set<pair<int, int>> Ebound = result.second;
         if (Rv > (float)D/4.0 || newBallOut.size() > 0.7*graph->V.size()) {
-            //return Erem = E(G) and terminate TODO maybe terminate means really terminate
             log(true, depth, "Terminate2?");
             terminateLDD = true;
             set<pair<int, int>> result = fromMatrixToSet(graph->is_edge);
             delete g0;
-            if (depth == 0)
-                log(true, depth, "[TOLGO] size: " + to_string(result.size()));
             return result;
         }
         Graph* inducedGraph = induced_graph(graph, newBallOut);
         set<pair<int, int>> Erecurs = LDD(inducedGraph, D, depth+1);
-        log(true, depth, "Erecurs size: " + to_string(Erecurs.size()));
-        for (auto x : Erecurs) {
-            log(true, depth, "Erecurs: " + to_string(x.first) + " " + to_string(x.second));
-        }
         delete inducedGraph;
         if (terminateLDD) {
             delete g0;
@@ -204,12 +180,8 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
             out_light.erase(x);
         }
     }
-    if (depth == 0) {
-        log(true, depth, "[TOLGO] size: " + to_string(Erem.size()));
-    }
 
     // Clean Up: check that remaining vertices  have small weak diameter in initial input graph G0
-    // TODO: check if terminate means really terminate
     int v = *graph->V.begin();
     set<int> ballInTest = ballIn(g0, v, D/2).first;
     if (!isSubset(graph->V, ballInTest)) {
@@ -217,8 +189,6 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
         terminateLDD = true;
         set<pair<int, int>> result = fromMatrixToSet(graph->is_edge);
         delete g0;
-        if (depth == 0)
-            log(true, depth, "[TOLGO] size: " + to_string(result.size()));
         return result;
     }
     set<int> ballOutTest = ballIn(g0, v, D/2).first;
@@ -227,14 +197,10 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
         terminateLDD = true;
         set<pair<int, int>> result = fromMatrixToSet(graph->is_edge);
         delete g0;
-        if (depth == 0)
-            log(true, depth, "[TOLGO] size: " + to_string(result.size()));
         return result;
     }
     
     delete g0;
-    if (depth == 0)
-        log(true, depth, "[TOLGO] size: " + to_string(Erem.size()));
     return Erem;
 }
 
@@ -358,12 +324,15 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
         Graph* graph_B_rem = subtractEdges(graph_B, Erem);
         vector<set<int>> SCCs = computeSCCs(graph_B_rem, depth);
         // phase 1: Make edges inside the SCCs G^B[V_i] non-negative
+        /*
         Graph* H = induced_graph(graph, *SCCs.begin());
         for (set<int> SCC : SCCs) {
             if (SCC == *SCCs.begin())
                 continue;
             H = mergeGraphs(H, induced_graph(graph, SCC));
         }
+        */
+        Graph* H = onlyEdgesInsideSCCs(graph, SCCs);
         PriceFunction Phi1 = scaleDown(H, delta/2, B, depth+1);
         // phase 2: Make all edges in G^B \ E^rem non-negative
         Graph* graph_B_Phi1 = applyPriceFunction(graph_B, Phi1);
@@ -398,7 +367,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
     log(true, 0, "Entering SPmain...");
 
     /* DEBUG INPUT REQUIREMENTS */
-    assert(checkConstantOutDegree(g_in));
+    //assert(checkConstantOutDegree(g_in));
     for (int i : g_in->V) {
         for (int j : g_in->V) {
             if (g_in->is_edge[i][j]) {

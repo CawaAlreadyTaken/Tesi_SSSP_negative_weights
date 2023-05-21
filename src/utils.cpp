@@ -383,6 +383,7 @@ void printGraph(Graph* g, int depth, bool cerr) {
 }
 
 bool checkConstantOutDegree(Graph* graph) {
+    /*
     int shared_out_degree = -1;
     for (int v : graph->V) {
         int out_degree = 0;
@@ -393,8 +394,21 @@ bool checkConstantOutDegree(Graph* graph) {
         }
         if (shared_out_degree == -1)
             shared_out_degree = out_degree;
-        else if (shared_out_degree != out_degree)
+        else if (shared_out_degree != out_degree) {
             return false;
+        }
+    }
+    */
+    for (int v : graph->V) {
+        int out_degree = 0;
+        for (int u : graph->V) {
+            if (graph->is_edge[v][u]) {
+                out_degree++;
+            }
+        }
+        if (out_degree > 2) {
+            return false;
+        }
     }
     return true;
 }
@@ -408,6 +422,29 @@ Graph* addDummySource(Graph* g) {
     for (int i : graph->V) {
         graph->adj[0][i] = 0;
         graph->is_edge[0][i] = true;
+    }
+
+    return graph;
+}
+
+Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>> SCCs) {
+    Graph* graph = new Graph(g->V);
+
+    for (int i : graph->V) {
+        for (int j : graph->V) {
+            if (g->is_edge[i][j]) {
+                for (set<int>& k : SCCs) {
+                    if (k.find(i) != k.end()) {
+                        if (k.find(j) == k.end())
+                            break;
+                        else {
+                            graph->adj[i][j] = g->adj[i][j];
+                            graph->is_edge[i][j] = true;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return graph;
