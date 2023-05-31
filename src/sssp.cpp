@@ -18,6 +18,7 @@ pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R) {
 
 pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fromBallIn) {
     // basically dijkstra in order to find vertices closer than R
+    auto t1 = high_resolution_clock::now();
     set<int> ris;
     set<pair<int, int>> boundary;
 
@@ -32,12 +33,17 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fro
         }
     }
 
+    //log(true, 0, "R is:" + to_string(R) + ", adjacent to first vertex: " + to_string(pq.size()));
+
     while (!pq.empty()) {
         auto top = pq.top();
         pq.pop();
         int weight = top.first*-1;
         int vertexFrom = top.second.first;
         int vertexTo = top.second.second;
+
+        if (confirmed[vertexTo])
+            continue;
 
         if (weight > R) { // Difference from dijstra
             if (fromBallIn) {
@@ -47,9 +53,6 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fro
             }
             continue;
         }
-
-        if (confirmed[vertexTo])
-            continue;
 
         confirmed[vertexTo] = true;
         ris.insert(vertexTo);
@@ -61,9 +64,17 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fro
             }
         }
     }
+    auto t2 = high_resolution_clock::now();
+    auto ms = duration_cast<milliseconds>(t2-t1);
+    //log(true, 0, "[TIME] first Vertex analysis ballout of " + to_string(graph->V.size()) + " vertices took " + to_string(ms.count()) + " ms, ballOut size: " + to_string(ris.size()) + "\n");
 
     if (fromBallIn)
         delete graph;
+    /*
+    auto t2 = high_resolution_clock::now();
+    auto ms = duration_cast<milliseconds>(t2-t1);
+    log(true, 0, "[TIME] ballOut of " + to_string(graph->V.size()) + " vertices took " + to_string(ms.count()) + " ms\n");
+    */
     return {ris, boundary};
 }
 
@@ -88,7 +99,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
-    int k = 3*log(INPUT_N);  // TODO: change this
+    int k = 10*log(INPUT_N);  // TODO: change this
     log(true, depth, "k = " + to_string(k) + ", D/4 = " + to_string(D/4));
     set<int> S = getRandomVertices(graph, k);
 
@@ -295,7 +306,6 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
     /* END DEBUG INPUT REQUIREMENTS */
 
     PriceFunction Phi2;
-    Graph* graph_B_Phi2;
     if (delta > 2) {
         int d = delta/2;
         Graph* graph_B_pos = new Graph(graph->V);
@@ -342,19 +352,17 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
         log(true, depth, "A");
         delete graph_B_pos;
         log(true, depth, "B");
-        delete graph_B;
-        log(true, depth, "C");
         delete H;
-        log(true, depth, "D");
+        log(true, depth, "C");
         delete graph_B_Phi1;
-        log(true, depth, "E");
+        log(true, depth, "D");
         delete graph_B_Phi1_rem;
-        log(true, depth, "F");
+        log(true, depth, "E");
     } else {
         Phi2.prices.assign(INPUT_N, 0);
     }
     // phase 3: Make all edges in G^B non-negative
-    graph_B_Phi2 = applyPriceFunction(addIntegerToNegativeEdges(graph, B), Phi2);
+    Graph* graph_B_Phi2 = applyPriceFunction(addIntegerToNegativeEdges(graph, B), Phi2);
     PriceFunction psi_first = elimNeg(graph_B_Phi2);
     PriceFunction Phi3 = PriceFunction::sum(Phi2, psi_first);
 

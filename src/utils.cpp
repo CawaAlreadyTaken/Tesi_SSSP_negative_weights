@@ -208,6 +208,7 @@ Graph* applyPriceFunction(Graph* g, PriceFunction p) {
             }
         }
     }
+    delete g;
     return result;
 }
 
