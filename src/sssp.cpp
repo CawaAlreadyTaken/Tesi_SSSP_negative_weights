@@ -99,7 +99,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
 
     set<pair<int, int>> Erem;
     // Phase 1: mark vertices as light or heavy
-    int k = 10*log(INPUT_N);  // TODO: change this
+    int k = 4*log(INPUT_N);  // TODO: change this
     log(true, depth, "k = " + to_string(k) + ", D/4 = " + to_string(D/4));
     set<int> S = getRandomVertices(graph, k);
 
@@ -228,12 +228,13 @@ PriceFunction elimNeg(Graph *g) {
     set<pair<int, int>> eNeg;
     for (int v:graph->V) {
         for (int u:graph->V) {
-            if (graph->is_edge[v][u]) {
+            if (graph->is_edge[v][u] && graph->adj[v][u] < 0) {
                 eNeg.insert({v, u});
             }
         }
     }
     set<pair<int, int>> e_minus_eNeg = edgesMinusEdges(e, eNeg);
+    cout << "e_minus_eNeg.size() = " << e_minus_eNeg.size() << endl;
 
     vector<int> prices(INPUT_N, 0);
     for (int v:graph->V) {
@@ -349,15 +350,10 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
         Graph* graph_B_Phi1_rem = subtractEdges(graph_B_Phi1, Erem);
         PriceFunction psi = FixDAGEdges(graph_B_Phi1_rem, SCCs);
         Phi2 = PriceFunction::sum(Phi1, psi);
-        log(true, depth, "A");
         delete graph_B_pos;
-        log(true, depth, "B");
         delete H;
-        log(true, depth, "C");
         delete graph_B_Phi1;
-        log(true, depth, "D");
         delete graph_B_Phi1_rem;
-        log(true, depth, "E");
     } else {
         Phi2.prices.assign(INPUT_N, 0);
     }
@@ -455,6 +451,7 @@ PriceFunction FixDAGEdges(Graph* graph, vector<set<int>> SCCs) {
             fromVertixToSCC[v] = i;
         }
     }
+    
 
     vector<int> mu_j(SCCs_topo.size(), 0);
     for (int v : graph->V) {
