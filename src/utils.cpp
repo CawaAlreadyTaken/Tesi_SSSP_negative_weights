@@ -72,7 +72,6 @@ SSSP_Result dijkstra(Graph* g, int s) {
 
     SSSP_Result result;
     vector<vector<int>> result_adj(INPUT_N, vector<int>(INPUT_N));
-    vector<vector<bool>> result_is_edge(INPUT_N, vector<bool>(INPUT_N, false));
     vector<vector<int>> result_edges(INPUT_N, vector<int>());
     result.has_negative_cycle = false;
 
@@ -103,12 +102,11 @@ SSSP_Result dijkstra(Graph* g, int s) {
         distances[vertexTo] = weight;
         confirmed[vertexTo] = true;
         result_adj[vertexFrom][vertexTo] = weight;
-        result_is_edge[vertexFrom][vertexTo] = true;
         result_edges[vertexFrom].push_back(vertexTo);
 
         // Add all his adj not yet confirmed to the priority queue
-        for (int nodo:g->V) {
-            if (g->is_edge[vertexTo][nodo] && !confirmed[nodo]) {
+        for (int nodo:g->edges[vertexTo]) {
+            if (!confirmed[nodo]) {
                 pair<int, pair<int, int>> newNode = {(distances[vertexTo]+g->adj[vertexTo][nodo])*-1, {vertexTo, nodo}};
                 pq.push(newNode);
             }
@@ -118,7 +116,6 @@ SSSP_Result dijkstra(Graph* g, int s) {
     // Compose result tree
     result.shortest_paths_tree = new Graph(g->V);
     result.shortest_paths_tree->adj = result_adj;
-    result.shortest_paths_tree->is_edge = result_is_edge;
     result.shortest_paths_tree->edges = result_edges;
 
     return result;
@@ -130,7 +127,6 @@ Graph* induced_graph(Graph* g, set<int> vertices) {
         for (int j : g->edges[i]) {
             if (vertices.find(i)!=vertices.end() && vertices.find(j)!=vertices.end()) {
                 result->adj[i][j] = g->adj[i][j];
-                result->is_edge[i][j] = true;
                 result->edges[i].push_back(j);
             }
         }
@@ -164,7 +160,6 @@ Graph* subtractVertices(Graph* g, set<int> vertices) {
     }
     Graph* result = new Graph(resultV);
     result->adj = resultAdj;
-    result->is_edge = resultIsEdge;
     result->edges = resultEdges;
     delete g;
     return result;
@@ -176,7 +171,6 @@ Graph* subtractEdges(Graph* g, set<pair<int, int>> edges) {
         for (int j : g->edges[i]) {
             if (edges.find({i, j})==edges.end()) {
                 result->adj[i][j] = g->adj[i][j];
-                result->is_edge[i][j] = true;
                 result->edges[i].push_back(j);
             }
         }
@@ -207,7 +201,6 @@ Graph* applyPriceFunction(Graph* g, PriceFunction p) {
     for (int i : g->V) {
         for (int j : g->edges[i]) {
             result->adj[i][j] = g->adj[i][j]+p.prices[i]-p.prices[j];
-            result->is_edge[i][j] = true;
             result->edges[i].push_back(j);
         }
     }
@@ -218,7 +211,6 @@ Graph* applyPriceFunction(Graph* g, PriceFunction p) {
 Graph* addIntegerToNegativeEdges(Graph* g, int e) {
     Graph* result = new Graph(g->V);
     result->adj = g->adj;
-    result->is_edge = g->is_edge;
     result->edges = g->edges;
     for (int i : g->V) {
         for (int j : g->edges[i]) {
@@ -254,7 +246,6 @@ Graph* mergeGraphs(Graph* g1, Graph* g2) {
     }
     Graph* result = new Graph(resultVertices);
     result->adj = resultAdj;
-    result->is_edge = resultIsEdge;
     result->edges = resultEdges;
     delete g1;
     delete g2;
@@ -295,7 +286,6 @@ Graph* transpose(Graph* g) {
     for (int i : g->V) {
         for (int j : g->edges[i]) {
             result->adj[j][i] = g->adj[i][j];
-            result->is_edge[j][i] = true;
             result->edges[j].push_back(i);
         }
     }
@@ -336,8 +326,8 @@ vector<set<int>> topologicalSort(vector<set<int>> SCCs, Graph* graph, vector<int
 
     vector<vector<int>> sccAdj(SCCs.size(), vector<int>());
     for (int v : graph->V) {
-        for (int w : graph->V) {
-            if (graph->is_edge[v][w] && fromVertixToSCC[v] != fromVertixToSCC[w]) {
+        for (int w : graph->edges[v]) {
+            if (fromVertixToSCC[v] != fromVertixToSCC[w]) {
                 sccAdj[fromVertixToSCC[v]].push_back(fromVertixToSCC[w]);
             }
         }
@@ -397,13 +387,11 @@ bool checkConstantOutDegree(Graph* graph) {
 Graph* addDummySource(Graph* g) {
     Graph* graph = new Graph(g->V);
     graph->adj = g->adj;
-    graph->is_edge = g->is_edge;
     graph->edges = g->edges;
 
     graph->V.insert(0);
     for (int i : graph->V) {
         graph->adj[0][i] = 0;
-        graph->is_edge[0][i] = true;
         graph->edges[0].push_back(i);
     }
 
@@ -421,7 +409,6 @@ Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>> SCCs) {
                         break;
                     else {
                         graph->adj[i][j] = g->adj[i][j];
-                        graph->is_edge[i][j] = true;
                         graph->edges[i].push_back(j);
                     }
                 }

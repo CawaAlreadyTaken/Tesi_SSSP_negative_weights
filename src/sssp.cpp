@@ -91,7 +91,6 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
     // Save a copy of the original graph, since we are going to modify it
     Graph* g0 = new Graph(graph->V);
     g0->adj = graph->adj;
-    g0->is_edge = graph->is_edge;
     g0->edges = graph->edges;
 
     set<pair<int, int>> Erem;
@@ -232,8 +231,6 @@ PriceFunction elimNeg(Graph *g) {
     }
     // TODO: can do better
     set<pair<int, int>> e_minus_eNeg = edgesMinusEdges(e, eNeg);
-    cout << "e_minus_eNeg.size() = " << e_minus_eNeg.size() << endl;
-    cout << "eNeg.size() = " << eNeg.size() << endl;
 
     vector<int> prices(INPUT_N, 0);
     for (int v : graph->V) {
@@ -244,7 +241,6 @@ PriceFunction elimNeg(Graph *g) {
     Q.push({0, s});
     set<int> marked;
     while (!Q.empty()) {
-        cout << 0 << endl;
 
         while (!Q.empty()) {
             int v = Q.top().second;
@@ -253,7 +249,6 @@ PriceFunction elimNeg(Graph *g) {
             if (prices[v] != d)
                 continue;
             marked.insert(v);
-            cout << 1 << endl;
             for (pair<int, int> edge : e_minus_eNeg) {
                 if (d + graph->adj[edge.first][edge.second] < prices[edge.second]) {
                     Q.push({-prices[edge.second], edge.second});
@@ -261,21 +256,16 @@ PriceFunction elimNeg(Graph *g) {
                 }
             }
         }
-        cout << 2 << endl;
 
-        cout << "a: " << marked.size() << endl;
         vector<int> toDeleteFromMarked;
         for (int v : marked) {
-            cout << 3 << endl;
             for (pair<int, int> edge : eNeg) {
                 if (prices[edge.first] + graph->adj[edge.first][edge.second] < prices[edge.second]) {
                     Q.push({-prices[edge.second], edge.second});
                     prices[edge.second] = prices[edge.first] + graph->adj[edge.first][edge.second];
                 }
             }
-            cout << 4 << endl;
             toDeleteFromMarked.push_back(v);
-            cout << 5 << endl;
         }
         for (int v : toDeleteFromMarked) {
             marked.erase(v);
@@ -322,7 +312,6 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
         int d = delta/2;
         Graph* graph_B_pos = new Graph(graph->V);
         graph_B_pos->adj = graph->adj;
-        graph_B_pos->is_edge = graph->is_edge;
         graph_B_pos->edges = graph->edges;
 
         for (int i : graph_B_pos->V) {
@@ -391,7 +380,6 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
 
     Graph* g_up = new Graph(g_in->V);
     g_up->adj = g_in->adj;
-    g_up->is_edge = g_in->is_edge;
     g_up->edges = g_in->edges;
     for (int i : g_up->V) {
         for (int j : g_up->edges[i])
@@ -412,7 +400,6 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
         log(true, 0, "Iteration number " + to_string(i) + " of SPmain");
         Graph* graph_B_phi0 = new Graph(g_up->V);
         graph_B_phi0->adj = g_up->adj;
-        graph_B_phi0->is_edge = g_up->is_edge;
         graph_B_phi0->edges = g_up->edges;
         // Apply the price function
         graph_B_phi0 = applyPriceFunction(graph_B_phi0, Phi0);
@@ -427,7 +414,6 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
 
     Graph* g_star = new Graph(g_up->V);
     g_star->adj = g_up->adj;
-    g_star->is_edge = g_up->is_edge;
     g_star->edges = g_up->edges;
     for (int j : g_star->V) {
         for (int k : g_star->edges[j]) {
