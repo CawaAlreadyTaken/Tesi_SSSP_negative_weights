@@ -64,9 +64,8 @@ SSSP_Result dijkstra(Graph* g, int s) {
 
     /* DEBUG INPUT REQUIREMENTS */
     for (int i : g->V) {
-        for (int j : g->V) {
-            if (g->is_edge[i][j])
-                assert(g->adj[i][j]>=0);
+        for (int j : g->edges[i]) {
+            assert(g->adj[i][j]>=0);
         }
     }
     /* END DEBUG INPUT REQUIREMENTS */
@@ -74,6 +73,7 @@ SSSP_Result dijkstra(Graph* g, int s) {
     SSSP_Result result;
     vector<vector<int>> result_adj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> result_is_edge(INPUT_N, vector<bool>(INPUT_N, false));
+    vector<vector<int>> result_edges(INPUT_N, vector<int>());
     result.has_negative_cycle = false;
 
     vector<bool> confirmed(INPUT_N, false);
@@ -84,9 +84,8 @@ SSSP_Result dijkstra(Graph* g, int s) {
     distances[s] = 0;
 
     priority_queue<pair<int, pair<int, int>>> pq; // <weight*-1, <indexFrom, indexTo>>
-    for (int nodo:g->V) {
-        if (g->is_edge[s][nodo])
-            pq.push({g->adj[s][nodo]*-1, {s, nodo}});
+    for (int nodo:g->edges[s]) {
+        pq.push({g->adj[s][nodo]*-1, {s, nodo}});
     }
 
     while (!pq.empty()) {
@@ -105,6 +104,7 @@ SSSP_Result dijkstra(Graph* g, int s) {
         confirmed[vertexTo] = true;
         result_adj[vertexFrom][vertexTo] = weight;
         result_is_edge[vertexFrom][vertexTo] = true;
+        result_edges[vertexFrom].push_back(vertexTo);
 
         // Add all his adj not yet confirmed to the priority queue
         for (int nodo:g->V) {
@@ -119,6 +119,7 @@ SSSP_Result dijkstra(Graph* g, int s) {
     result.shortest_paths_tree = new Graph(g->V);
     result.shortest_paths_tree->adj = result_adj;
     result.shortest_paths_tree->is_edge = result_is_edge;
+    result.shortest_paths_tree->edges = result_edges;
 
     return result;
 }
@@ -126,10 +127,11 @@ SSSP_Result dijkstra(Graph* g, int s) {
 Graph* induced_graph(Graph* g, set<int> vertices) {
     Graph* result = new Graph(vertices);
     for (int i : g->V) {
-        for (int j : g->V) {
-            if (g->is_edge[i][j] && vertices.find(i)!=vertices.end() && vertices.find(j)!=vertices.end()) {
+        for (int j : g->edges[i]) {
+            if (vertices.find(i)!=vertices.end() && vertices.find(j)!=vertices.end()) {
                 result->adj[i][j] = g->adj[i][j];
                 result->is_edge[i][j] = true;
+                result->edges[i].push_back(j);
             }
         }
     }
@@ -146,21 +148,24 @@ set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>>& b) {
 Graph* subtractVertices(Graph* g, set<int> vertices) {
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
+    vector<vector<int>> resultEdges(INPUT_N, vector<int>());
     set<int> resultV;
     for (int i : g->V) {
         if (vertices.find(i) != vertices.end())
             continue;
         resultV.insert(i);
-        for (int j : g->V) {
-            if (g->is_edge[i][j] && vertices.find(j)==vertices.end()) {
+        for (int j : g->edges[i]) {
+            if (vertices.find(j)==vertices.end()) {
                 resultAdj[i][j] = g->adj[i][j];
                 resultIsEdge[i][j] = true;
+                resultEdges[i].push_back(j);
             }
         }
     }
     Graph* result = new Graph(resultV);
     result->adj = resultAdj;
     result->is_edge = resultIsEdge;
+    result->edges = resultEdges;
     delete g;
     return result;
 }
@@ -168,23 +173,22 @@ Graph* subtractVertices(Graph* g, set<int> vertices) {
 Graph* subtractEdges(Graph* g, set<pair<int, int>> edges) {
     Graph* result = new Graph(g->V);
     for (int i : g->V) {
-        for (int j : g->V) {
-            if (g->is_edge[i][j] && edges.find({i, j})==edges.end()) {
+        for (int j : g->edges[i]) {
+            if (edges.find({i, j})==edges.end()) {
                 result->adj[i][j] = g->adj[i][j];
                 result->is_edge[i][j] = true;
+                result->edges[i].push_back(j);
             }
         }
     }
     return result;
 }
 
-set<pair<int, int>> fromMatrixToSet(vector<vector<bool>> isEdge) {
+set<pair<int, int>> fromGraphToSetOfEdges(Graph* g) {
     set<pair<int, int>> result;
-    for (int i = 0; i < isEdge.size(); i++) {
-        for (int j = 0; j < isEdge.size(); j++) {
-            if (isEdge[i][j]) {
-                result.insert({i, j});
-            }
+    for (int i : g->V) {
+        for (int j : g->edges[i]) {
+            result.insert({i, j});
         }
     }
     return result;
@@ -201,11 +205,10 @@ bool isSubset(set<int> a, set<int> b) {
 Graph* applyPriceFunction(Graph* g, PriceFunction p) {
     Graph* result = new Graph(g->V);
     for (int i : g->V) {
-        for (int j : g->V) {
-            if (g->is_edge[i][j]) {
-                result->adj[i][j] = g->adj[i][j]+p.prices[i]-p.prices[j];
-                result->is_edge[i][j] = true;
-            }
+        for (int j : g->edges[i]) {
+            result->adj[i][j] = g->adj[i][j]+p.prices[i]-p.prices[j];
+            result->is_edge[i][j] = true;
+            result->edges[i].push_back(j);
         }
     }
     delete g;
@@ -216,9 +219,10 @@ Graph* addIntegerToNegativeEdges(Graph* g, int e) {
     Graph* result = new Graph(g->V);
     result->adj = g->adj;
     result->is_edge = g->is_edge;
+    result->edges = g->edges;
     for (int i : g->V) {
-        for (int j : g->V) {
-            if (g->is_edge[i][j] && g->adj[i][j] < 0) {
+        for (int j : g->edges[i]) {
+            if (g->adj[i][j] < 0) {
                 result->adj[i][j] = g->adj[i][j]+e;
             }
         }
@@ -230,27 +234,28 @@ Graph* mergeGraphs(Graph* g1, Graph* g2) {
     set<int> resultVertices;
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
+    vector<vector<int>> resultEdges(INPUT_N, vector<int>());
     for (int i : g1->V) {
         resultVertices.insert(i);
-        for (int j : g1->V) {
-            if (g1->is_edge[i][j]) {
-                resultAdj[i][j] = g1->adj[i][j];
-                resultIsEdge[i][j] = true;
-            }
+        for (int j : g1->edges[i]) {
+            resultAdj[i][j] = g1->adj[i][j];
+            resultIsEdge[i][j] = true;
+            resultEdges[i].push_back(j);
         }
     }
     for (int i : g2->V) {
         resultVertices.insert(i);
-        for (int j : g2->V) {
-            if (g2->is_edge[i][j]) {
-                resultAdj[i][j] = g2->adj[i][j];
-                resultIsEdge[i][j] = true;
-            }
+        for (int j : g2->edges[i]) {
+            resultAdj[i][j] = g2->adj[i][j];
+            resultIsEdge[i][j] = true;
+            // This works because mergegraphs will always be called on graphs with disjoint vertex sets
+            resultEdges[i].push_back(j);
         }
     }
     Graph* result = new Graph(resultVertices);
     result->adj = resultAdj;
     result->is_edge = resultIsEdge;
+    result->edges = resultEdges;
     delete g1;
     delete g2;
     return result;
@@ -288,11 +293,10 @@ vector<set<int>> computeSCCs(Graph* g, int depth) {
 Graph* transpose(Graph* g) {
     Graph* result = new Graph(g->V);
     for (int i : g->V) {
-        for (int j : g->V) {
-            if (g->is_edge[i][j]) {
-                result->adj[j][i] = g->adj[i][j];
-                result->is_edge[j][i] = true;
-            }
+        for (int j : g->edges[i]) {
+            result->adj[j][i] = g->adj[i][j];
+            result->is_edge[j][i] = true;
+            result->edges[j].push_back(i);
         }
     }
 
@@ -301,8 +305,8 @@ Graph* transpose(Graph* g) {
 
 void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s) {
     visited[v] = true;
-    for (int i : g->V) {
-        if (g->is_edge[v][i] && !visited[i]) {
+    for (int i : g->edges[v]) {
+        if (!visited[i]) {
             DFS(g, i, visited, s);
         }
     }
@@ -312,14 +316,14 @@ void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s) {
 void DFSaddComp(Graph* g, int v, vector<bool>& visited, set<int>& component) {
     visited[v] = true;
     component.insert(v);
-    for (int i : g->V) {
-        if (g->is_edge[v][i] && !visited[i]) {
+    for (int i : g->edges[v]) {
+        if (!visited[i]) {
             DFSaddComp(g, i, visited, component);
         }
     }
 }
 
-set<pair<int, int>> edgesMinusEdges(set<pair<int, int>> a, set<pair<int, int>> b) {
+set<pair<int, int>> edgesMinusEdges(set<pair<int, int>>& a, set<pair<int, int>>& b) {
     set<pair<int, int>> result;
     for (auto i:a) {
         if (b.find(i) == b.end())
@@ -375,39 +379,15 @@ void printGraph(Graph* g, int depth, bool cerr) {
     }
     log(cerr, depth, s);
     for (int i : g->V) {
-        for (int j : g->V) {
-            if (g->is_edge[i][j]) {
-                log(cerr, depth, to_string(i) + " -> " + to_string(j) + " : " + to_string(g->adj[i][j]));
-            }
+        for (int j : g->edges[i]) {
+            log(cerr, depth, to_string(i) + " -> " + to_string(j) + " : " + to_string(g->adj[i][j]));
         }
     }
 }
 
 bool checkConstantOutDegree(Graph* graph) {
-    /*
-    int shared_out_degree = -1;
     for (int v : graph->V) {
-        int out_degree = 0;
-        for (int u : graph->V) {
-            if (graph->is_edge[v][u]) {
-                out_degree++;
-            }
-        }
-        if (shared_out_degree == -1)
-            shared_out_degree = out_degree;
-        else if (shared_out_degree != out_degree) {
-            return false;
-        }
-    }
-    */
-    for (int v : graph->V) {
-        int out_degree = 0;
-        for (int u : graph->V) {
-            if (graph->is_edge[v][u]) {
-                out_degree++;
-            }
-        }
-        if (out_degree > 2) {
+        if (graph->edges[v].size() > 2) {
             return false;
         }
     }
@@ -418,11 +398,13 @@ Graph* addDummySource(Graph* g) {
     Graph* graph = new Graph(g->V);
     graph->adj = g->adj;
     graph->is_edge = g->is_edge;
+    graph->edges = g->edges;
 
     graph->V.insert(0);
     for (int i : graph->V) {
         graph->adj[0][i] = 0;
         graph->is_edge[0][i] = true;
+        graph->edges[0].push_back(i);
     }
 
     return graph;
@@ -432,16 +414,15 @@ Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>> SCCs) {
     Graph* graph = new Graph(g->V);
 
     for (int i : graph->V) {
-        for (int j : graph->V) {
-            if (g->is_edge[i][j]) {
-                for (set<int>& k : SCCs) {
-                    if (k.find(i) != k.end()) {
-                        if (k.find(j) == k.end())
-                            break;
-                        else {
-                            graph->adj[i][j] = g->adj[i][j];
-                            graph->is_edge[i][j] = true;
-                        }
+        for (int j : g->edges[i]) {
+            for (set<int>& k : SCCs) {
+                if (k.find(i) != k.end()) {
+                    if (k.find(j) == k.end())
+                        break;
+                    else {
+                        graph->adj[i][j] = g->adj[i][j];
+                        graph->is_edge[i][j] = true;
+                        graph->edges[i].push_back(j);
                     }
                 }
             }
@@ -453,15 +434,14 @@ Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>> SCCs) {
 
 void print_shortest_path_tree(SSSP_Result result) {
     log(false, 0, "Shortest paths tree:");
-    vector<vector<int>> shortest_paths = result.shortest_paths_tree->adj;
-    for (int i = 0; i < shortest_paths.size(); i++) {
+    vector<vector<int>> adj = result.shortest_paths_tree->adj;
+    vector<vector<int>> edges = result.shortest_paths_tree->edges;
+    for (int i = 0; i < adj.size(); i++) {
         string s = "Dal nodo " + to_string(i) + ":";
         log(false, 0, s);
-        for (int j = 0; j < shortest_paths[i].size(); j++) {
-            if (result.shortest_paths_tree->is_edge[i][j]) {
-                string s = "al nodo " + to_string(j) + ": " + to_string(result.shortest_paths_tree->adj[i][j]);
-                log(false, 0, s);
-            }
+        for (int j : edges[i]) {
+            string s = "al nodo " + to_string(j) + ": " + to_string(adj[i][j]);
+            log(false, 0, s);
         }
         log(false, 0, "");
     }
