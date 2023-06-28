@@ -143,7 +143,6 @@ set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>>& b) {
 
 Graph* subtractVertices(Graph* g, set<int>& vertices) {
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
-    vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
     vector<vector<int>> resultEdges(INPUT_N, vector<int>());
     set<int> resultV;
     for (int i : g->V) {
@@ -153,7 +152,6 @@ Graph* subtractVertices(Graph* g, set<int>& vertices) {
         for (int j : g->edges[i]) {
             if (vertices.find(j)==vertices.end()) {
                 resultAdj[i][j] = g->adj[i][j];
-                resultIsEdge[i][j] = true;
                 resultEdges[i].push_back(j);
             }
         }
@@ -225,13 +223,11 @@ Graph* addIntegerToNegativeEdges(Graph* g, int e) {
 Graph* mergeGraphs(Graph* g1, Graph* g2) {
     set<int> resultVertices;
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
-    vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
     vector<vector<int>> resultEdges(INPUT_N, vector<int>());
     for (int i : g1->V) {
         resultVertices.insert(i);
         for (int j : g1->edges[i]) {
             resultAdj[i][j] = g1->adj[i][j];
-            resultIsEdge[i][j] = true;
             resultEdges[i].push_back(j);
         }
     }
@@ -239,7 +235,6 @@ Graph* mergeGraphs(Graph* g1, Graph* g2) {
         resultVertices.insert(i);
         for (int j : g2->edges[i]) {
             resultAdj[i][j] = g2->adj[i][j];
-            resultIsEdge[i][j] = true;
             // This works because mergegraphs will always be called on graphs with disjoint vertex sets
             resultEdges[i].push_back(j);
         }
