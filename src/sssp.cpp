@@ -5,17 +5,23 @@
 #include <random>
 
 pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R) {
+    for (int z : graph->V) {
+        assert(graph->edges[z].size() == graph->adj[z].size());
+    }
     // In order to do ballIn, we can reverse the edges and call ballOut
     Graph* graph_copy = new Graph(graph->V);
     for (int i : graph->V) {
-        for (int j : graph->edges[i]) {
-            graph_copy->add_edge(j, i, graph->adj[i][j]);
+        for (int j = 0; j < graph->edges[i].size(); j++) {
+            graph_copy->add_edge(graph->edges[i][j], i, graph->adj[i][j]);
         }
     }
     return ballOut(graph_copy, v, R, true);
 }
 
 pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fromBallIn) {
+    for (int z : graph->V) {
+        assert(graph->edges[z].size() == graph->adj[z].size());
+    }
     // basically dijkstra in order to find vertices closer than R
     auto t1 = high_resolution_clock::now();
     set<int> ris;
@@ -26,8 +32,9 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fro
     ris.insert(v);
 
     priority_queue<pair<int, pair<int, int>>> pq; // <weight*-1, <indexFrom, indexTo>>
-    for (int nodo : graph->edges[v]) {
-        pq.push({graph->adj[v][nodo]*-1, {v, nodo}});
+    for (int i = 0; i < graph->edges[v].size(); i++) {
+        int nodo = graph->edges[v][i];
+        pq.push({graph->adj[v][i]*-1, {v, nodo}});
     }
 
     //log(true, 0, "R is:" + to_string(R) + ", adjacent to first vertex: " + to_string(pq.size()));
@@ -54,9 +61,10 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fro
         confirmed[vertexTo] = true;
         ris.insert(vertexTo);
 
-        for (int nodo : graph->edges[vertexTo]) {
+        for (int i = 0; i < graph->edges[vertexTo].size(); i++) {
+            int nodo = graph->edges[vertexTo][i];
             if (!confirmed[nodo]) {
-                pair<int, pair<int, int>> newNode = {(weight+graph->adj[vertexTo][nodo])*-1, {vertexTo, nodo}};
+                pair<int, pair<int, int>> newNode = {(weight+graph->adj[vertexTo][i])*-1, {vertexTo, nodo}};
                 pq.push(newNode);
             }
         }
@@ -76,13 +84,16 @@ pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fro
 }
 
 set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
+    for (int z : graph->V) {
+        assert(graph->edges[z].size() == graph->adj[z].size());
+    }
     // O(m log^2(n)+n log^3 n)
     log(true, depth, "Entering LDD, D = " + to_string(D) + ", number of vertices: " + to_string(graph->V.size()));
 
     /* DEBUG INPUT REQUIREMENTS */
     assert(D > 0);
     for (int i : graph->V) {
-        for (int j : graph->edges[i]) {
+        for (int j = 0; j < graph->edges[i].size(); j++) {
             assert(graph->adj[i][j] >= 0);
         }
     }
@@ -105,7 +116,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
     // Da ricontrollare
     for (int x : S) {
         set<int> bIn = ballIn(graph, x, D/4).first;
-        set<int> bOut = ballOut(graph, x, D/4).first;
+        set<int> bOut = ballOut(graph, x, D/4, false).first;
         for (int z : bIn)
             ballOutIntersec[z].insert(x);
         for (int z : bOut)
@@ -164,7 +175,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
         double p = d_min(1, 80.0*log2(INPUT_N)/D);
         geometric_distribution<int> distribution(p);
         int Rv = distribution(generator)+1;
-        auto result = ballOut(graph, v, Rv);
+        auto result = ballOut(graph, v, Rv, false);
         set<int> newBallOut = result.first;
         set<pair<int, int>> Ebound = result.second;
         if (Rv > (float)D/4.0 || newBallOut.size() > 0.7*graph->V.size()) {
@@ -198,7 +209,7 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
         delete g0;
         return result;
     }
-    set<int> ballOutTest = ballIn(g0, v, D/2).first;
+    set<int> ballOutTest = ballOut(g0, v, D/2).first;
     if (!isSubset(graph->V, ballOutTest)) {
         log(true, depth, "Terminate4?");
         terminateLDD = true;
@@ -212,6 +223,9 @@ set<pair<int, int>> LDD(Graph* graph, int D, int depth) {
 }
 
 PriceFunction elimNeg(Graph *g) {
+    for (int z : g->V) {
+        assert(g->edges[z].size() == g->adj[z].size());
+    }
 
     /* DEBUG INPUT REQUIREMENTS */
     //assert(checkConstantOutDegree(g));
@@ -223,13 +237,12 @@ PriceFunction elimNeg(Graph *g) {
     set<pair<int, int>> e = fromGraphToSetOfEdges(graph);
     set<pair<int, int>> eNeg;
     for (int v : graph->V) {
-        for (int u : graph->edges[v]) {
+        for (int u = 0; u < graph->edges[v].size(); u++) {
             if (graph->adj[v][u] < 0) {
-                eNeg.insert({v, u});
+                eNeg.insert({v, graph->edges[v][u]});
             }
         }
     }
-    // TODO: can do better
     set<pair<int, int>> e_minus_eNeg = edgesMinusEdges(e, eNeg);
 
     vector<int> prices(INPUT_N, 0);
@@ -240,6 +253,7 @@ PriceFunction elimNeg(Graph *g) {
     priority_queue<pair<int, int>> Q;
     Q.push({0, s});
     set<int> marked;
+    map<pair<int, int>, int> supportMap = createSupportMap(graph);
     while (!Q.empty()) {
 
         while (!Q.empty()) {
@@ -250,9 +264,9 @@ PriceFunction elimNeg(Graph *g) {
                 continue;
             marked.insert(v);
             for (pair<int, int> edge : e_minus_eNeg) {
-                if (d + graph->adj[edge.first][edge.second] < prices[edge.second]) {
+                if (d + supportMap[{edge.first,edge.second}] < prices[edge.second]) {
                     Q.push({-prices[edge.second], edge.second});
-                    prices[edge.second] = d + graph->adj[edge.first][edge.second];
+                    prices[edge.second] = d + supportMap[{edge.first,edge.second}];
                 }
             }
         }
@@ -260,9 +274,9 @@ PriceFunction elimNeg(Graph *g) {
         vector<int> toDeleteFromMarked;
         for (int v : marked) {
             for (pair<int, int> edge : eNeg) {
-                if (prices[edge.first] + graph->adj[edge.first][edge.second] < prices[edge.second]) {
+                if (prices[edge.first] + supportMap[{edge.first,edge.second}] < prices[edge.second]) {
                     Q.push({-prices[edge.second], edge.second});
-                    prices[edge.second] = prices[edge.first] + graph->adj[edge.first][edge.second];
+                    prices[edge.second] = prices[edge.first] + supportMap[{edge.first,edge.second}];
                 }
             }
             toDeleteFromMarked.push_back(v);
@@ -293,6 +307,9 @@ PriceFunction PriceFunction::sum(PriceFunction a, PriceFunction b) {
 }
 
 PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
+    for (int z : graph->V) {
+        assert(graph->edges[z].size() == graph->adj[z].size());
+    }
     // O(m log^3(n)log(delta))
     log(true, depth, "Entering scaleDown, delta = " + to_string(delta) + ", B = " + to_string(B));
 
@@ -300,7 +317,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
     //assert(checkConstantOutDegree(graph));
     assert(B > 0);
     for (int v : graph->V) {
-        for (int u : graph->edges[v]) {
+        for (int u = 0; u < graph->edges[v].size(); u++) {
             assert(graph->adj[v][u] >= -2*B);
         }
     }
@@ -315,7 +332,7 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
         graph_B_pos->edges = graph->edges;
 
         for (int i : graph_B_pos->V) {
-            for (int j : graph_B_pos->edges[i]) {
+            for (int j = 0; j < graph_B_pos->edges[i].size(); j++) {
                 if (graph_B_pos->adj[i][j] < 0)
                     graph_B_pos->adj[i][j] = max(graph_B_pos->adj[i][j]+B, 0);
             }
@@ -334,14 +351,6 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
         Graph* graph_B_rem = subtractEdges(graph_B, Erem);
         vector<set<int>> SCCs = computeSCCs(graph_B_rem, depth);
         // phase 1: Make edges inside the SCCs G^B[V_i] non-negative
-        /*
-        Graph* H = induced_graph(graph, *SCCs.begin());
-        for (set<int> SCC : SCCs) {
-            if (SCC == *SCCs.begin())
-                continue;
-            H = mergeGraphs(H, induced_graph(graph, SCC));
-        }
-        */
         Graph* H = onlyEdgesInsideSCCs(graph, SCCs);
         PriceFunction Phi1 = scaleDown(H, delta/2, B, depth+1);
         // phase 2: Make all edges in G^B \ E^rem non-negative
@@ -366,13 +375,16 @@ PriceFunction scaleDown(Graph *graph, int delta, int B, int depth) {
 }
 
 SSSP_Result SPmain(Graph* g_in, int s_in) {
+    for (int z : g_in->V) {
+        assert(g_in->edges[z].size() == g_in->adj[z].size());
+    }
     // O(m log^5(n))
     log(true, 0, "Entering SPmain...");
 
     /* DEBUG INPUT REQUIREMENTS */
     //assert(checkConstantOutDegree(g_in));
     for (int i : g_in->V) {
-        for (int j : g_in->edges[i]) {
+        for (int j = 0; j < g_in->edges[i].size(); j++) {
             assert(g_in->adj[i][j] >= -1);
         }
     }
@@ -382,7 +394,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
     g_up->adj = g_in->adj;
     g_up->edges = g_in->edges;
     for (int i : g_up->V) {
-        for (int j : g_up->edges[i])
+        for (int j = 0; j < g_up->edges[i].size(); j++)
             g_up->adj[i][j]*=2*g_in->V.size();
     }
 
@@ -416,8 +428,8 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
     g_star->adj = g_up->adj;
     g_star->edges = g_up->edges;
     for (int j : g_star->V) {
-        for (int k : g_star->edges[j]) {
-            g_star->adj[j][k] += Phi0.prices[j] - Phi0.prices[k] + 1;
+        for (int k = 0; k < g_star->edges[j].size(); k++) {
+            g_star->adj[j][k] += Phi0.prices[j] - Phi0.prices[g_star->edges[j][k]] + 1;
         }
     }
 
@@ -428,6 +440,9 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
 }
 
 PriceFunction FixDAGEdges(Graph* graph, vector<set<int>>& SCCs) {
+    for (int z : graph->V) {
+        assert(graph->edges[z].size() == graph->adj[z].size());
+    }
     PriceFunction Phi;
     Phi.prices.assign(INPUT_N, 0);
     // Sort SCCs vector in topological order
@@ -449,10 +464,11 @@ PriceFunction FixDAGEdges(Graph* graph, vector<set<int>>& SCCs) {
 
     vector<int> mu_j(SCCs_topo.size(), 0);
     for (int v : graph->V) {
-        for (int w : graph->edges[v]) {
+        for (int w = 0; w < graph->edges[v].size(); w++) {
             if (graph->adj[v][w] < 0) {
-                if (fromVertixToSCC[v] != fromVertixToSCC[w]) {
-                    mu_j[fromVertixToSCC[w]] = min(mu_j[fromVertixToSCC[w]], graph->adj[v][w]);
+                int u = graph->edges[v][w];
+                if (fromVertixToSCC[v] != fromVertixToSCC[u]) {
+                    mu_j[fromVertixToSCC[u]] = min(mu_j[fromVertixToSCC[u]], graph->adj[v][w]);
                 }
             }
         }

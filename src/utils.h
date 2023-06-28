@@ -45,6 +45,7 @@ bool isSubset(set<int>& a, set<int>& b);
 bool checkConstantOutDegree(Graph* g);
 vector<set<int>> computeSCCs(Graph* g, int depth);
 vector<set<int>> topologicalSort(vector<set<int>>& SCCs, Graph* graph, vector<int>& fromVertixToSCC);
+map<pair<int, int>, int> createSupportMap(Graph* g);
 SSSP_Result dijkstra(Graph* g, int s);
 
 
