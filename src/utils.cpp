@@ -218,37 +218,6 @@ Graph* addIntegerToNegativeEdges(Graph* g, int e) {
     return result;
 }
 
-Graph* mergeGraphs(Graph* g1, Graph* g2) {
-    set<int> resultVertices;
-    vector<vector<int>> resultAdj(INPUT_N, vector<int>());
-    vector<vector<int>> resultEdges(INPUT_N, vector<int>());
-    for (int i : g1->V) {
-        resultVertices.insert(i);
-        for (int j = 0; j < g1->edges[i].size(); j++) {
-            resultAdj[i].push_back(g1->adj[i][j]);
-            resultEdges[i].push_back(g1->edges[i][j]);
-        }
-    }
-    for (int i : g2->V) {
-        //DEBUG
-        assert(resultVertices.find(i)==resultVertices.end());
-        //END DEBUG
-        resultVertices.insert(i);
-        for (int j = 0; j < g2->edges[i].size(); j++) {
-            // This works because mergeGraphs will always be called on graphs with disjoint vertex sets
-            // The assert above ensures this
-            resultAdj[i].push_back(g2->adj[i][j]);
-            resultEdges[i].push_back(g2->edges[i][j]);
-        }
-    }
-    Graph* result = new Graph(resultVertices);
-    result->adj = resultAdj;
-    result->edges = resultEdges;
-    delete g1;
-    delete g2;
-    return result;
-}
-
 vector<set<int>> computeSCCs(Graph* g, int depth) {
     log(true, depth, "Computing SCCs...");
     string s_log = "Graph has " + to_string(g->V.size()) + " vertices";

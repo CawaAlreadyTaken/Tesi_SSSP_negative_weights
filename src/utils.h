@@ -31,7 +31,6 @@ Graph* subtractVertices(Graph* g, set<int>& vertices);
 Graph* subtractEdges(Graph* g, set<pair<int, int>>& edges);
 Graph* addIntegerToNegativeEdges(Graph* g, int e);
 Graph* applyPriceFunction(Graph* g, PriceFunction p);
-Graph* mergeGraphs(Graph* g1, Graph* g2);
 Graph* transpose(Graph* g);
 Graph* addDummySource(Graph* g);
 Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>>& SCCs);
