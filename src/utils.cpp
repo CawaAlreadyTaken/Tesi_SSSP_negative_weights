@@ -19,10 +19,12 @@ void log(bool _cerr, int depth, string message) {
     }
 }
 
+long long l_max(long long a, long long b) {
+    return a > b;
+}
+
 double d_min(double a, double b) {
-    if (a < b)
-        return a;
-    return b;
+    return a < b;
 }
 
 set<int> getRandomVertices(Graph* g, int k) {
@@ -45,11 +47,11 @@ set<int> getRandomVertices(Graph* g, int k) {
     return vertices;
 }
 
-int roundB(int b) {
+long long roundB(long long b) {
     // round up b to the nearest power of 2
     if (b==1)
         return b;
-    int k = 1;
+    long long k = 1;
     while (true) {
         k*=2;
         if (k >= b)
@@ -71,14 +73,14 @@ SSSP_Result dijkstra(Graph* g, int s) {
     /* END DEBUG INPUT REQUIREMENTS */
 
     SSSP_Result result;
-    vector<vector<int>> result_adj(INPUT_N, vector<int>());
+    vector<vector<long long>> result_adj(INPUT_N, vector<long long>());
     vector<vector<int>> result_edges(INPUT_N, vector<int>());
     result.has_negative_cycle = false;
 
     vector<bool> confirmed(INPUT_N, false);
     confirmed[s] = true;
 
-    priority_queue<pair<int, pair<int, int>>> pq; // <weight*-1, <indexFrom, indexTo>>
+    priority_queue<pair<long long, pair<int, int>>> pq; // <weight*-1, <indexFrom, indexTo>>
     for (int i = 0; i < g->edges[s].size(); i++) {
         int nodo = g->edges[s][i];
         pq.push({g->adj[s][i]*-1, {s, nodo}});
@@ -87,7 +89,7 @@ SSSP_Result dijkstra(Graph* g, int s) {
     while (!pq.empty()) {
         auto top = pq.top();
         pq.pop();
-        int weight = top.first*-1;
+        long long weight = top.first*-1;
         int vertexFrom = top.second.first;
         int vertexTo = top.second.second;
 
@@ -104,7 +106,7 @@ SSSP_Result dijkstra(Graph* g, int s) {
         for (int i = 0; i < g->edges[vertexTo].size(); i++) {
             int nodo = g->edges[vertexTo][i];
             if (!confirmed[nodo]) {
-                pair<int, pair<int, int>> newNode = {(weight+g->adj[vertexTo][i])*-1, {vertexTo, nodo}};
+                pair<long long, pair<int, int>> newNode = {(weight+g->adj[vertexTo][i])*-1, {vertexTo, nodo}};
                 pq.push(newNode);
             }
         }
@@ -139,7 +141,7 @@ set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>>& b) {
 }
 
 Graph* subtractVertices(Graph* g, set<int>& vertices) {
-    vector<vector<int>> resultAdj(INPUT_N, vector<int>());
+    vector<vector<long long>> resultAdj(INPUT_N, vector<long long>());
     vector<vector<int>> resultEdges(INPUT_N, vector<int>());
     set<int> resultV;
     for (int i : g->V) {
@@ -203,7 +205,7 @@ Graph* applyPriceFunction(Graph* g, PriceFunction p) {
     return result;
 }
 
-Graph* addIntegerToNegativeEdges(Graph* g, int e) {
+Graph* addIntegerToNegativeEdges(Graph* g, long long e) {
     Graph* result = new Graph(g->V);
     result->adj = g->adj;
     result->edges = g->edges;
@@ -356,8 +358,10 @@ Graph* addDummySource(Graph* g) {
 
     graph->V.insert(0);
     for (int i : graph->V) {
-        graph->adj[0].push_back(0);
-        graph->edges[0].push_back(i);
+        if (i != 0) {
+            graph->adj[0].push_back(0);
+            graph->edges[0].push_back(i);
+        }
     }
 
     return graph;
@@ -384,8 +388,8 @@ Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>>& SCCs) {
     return graph;
 }
 
-map<pair<int, int>, int> createSupportMap(Graph* g) {
-    map<pair<int, int>, int> supportMap;
+map<pair<int, int>, long long> createSupportMap(Graph* g) {
+    map<pair<int, int>, long long> supportMap;
     for (int i : g->V) {
         for (int j = 0; j < g->edges[i].size(); j++) {
             supportMap[make_pair(i, g->edges[i][j])] = g->adj[i][j];
@@ -396,7 +400,7 @@ map<pair<int, int>, int> createSupportMap(Graph* g) {
 
 void print_shortest_path_tree(SSSP_Result result) {
     log(false, 0, "Shortest paths tree:");
-    vector<vector<int>> adj = result.shortest_paths_tree->adj;
+    vector<vector<long long>> adj = result.shortest_paths_tree->adj;
     vector<vector<int>> edges = result.shortest_paths_tree->edges;
     for (int i = 0; i < adj.size(); i++) {
         if (adj[i].size() == 0)

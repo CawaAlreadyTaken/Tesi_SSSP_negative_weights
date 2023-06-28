@@ -32,7 +32,9 @@ int main() {
 
     // Receive in input all edges
     for (int i = 0; i < m; i++) {
-        int from, to, weight; cin >> from >> to >> weight;
+        int from, to;
+        long long weight;
+        cin >> from >> to >> weight;
         graph->add_edge(from, to, weight);
     }
     /* END INPUT */

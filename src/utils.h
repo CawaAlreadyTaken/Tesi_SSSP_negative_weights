@@ -20,7 +20,8 @@ using std::chrono::milliseconds;
 extern bool terminateLDD;
 extern int INPUT_N;
 
-int roundB(int b);
+long long roundB(long long b);
+long long l_max(long long a, long long b);
 double d_min(double a, double b);
 set<int> getRandomVertices(Graph* g, int k);
 set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>>& b);
@@ -29,7 +30,7 @@ set<pair<int, int>> edgesMinusEdges(set<pair<int, int>>& a, set<pair<int, int>>&
 Graph* induced_graph(Graph* g, set<int>& vertices);
 Graph* subtractVertices(Graph* g, set<int>& vertices);
 Graph* subtractEdges(Graph* g, set<pair<int, int>>& edges);
-Graph* addIntegerToNegativeEdges(Graph* g, int e);
+Graph* addIntegerToNegativeEdges(Graph* g, long long e);
 Graph* applyPriceFunction(Graph* g, PriceFunction p);
 Graph* transpose(Graph* g);
 Graph* addDummySource(Graph* g);
@@ -44,7 +45,7 @@ bool isSubset(set<int>& a, set<int>& b);
 bool checkConstantOutDegree(Graph* g);
 vector<set<int>> computeSCCs(Graph* g, int depth);
 vector<set<int>> topologicalSort(vector<set<int>>& SCCs, Graph* graph, vector<int>& fromVertixToSCC);
-map<pair<int, int>, int> createSupportMap(Graph* g);
+map<pair<int, int>, long long> createSupportMap(Graph* g);
 SSSP_Result dijkstra(Graph* g, int s);
 
 
