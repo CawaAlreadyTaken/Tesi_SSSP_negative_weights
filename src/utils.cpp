@@ -251,7 +251,6 @@ Graph* mergeGraphs(Graph* g1, Graph* g2) {
 
 vector<set<int>> computeSCCs(Graph* g, int depth) {
     log(true, depth, "Computing SCCs...");
-    printGraph(g, depth, true);
     string s_log = "Graph has " + to_string(g->V.size()) + " vertices";
     log(true, depth, s_log);
     vector<set<int>> result;
