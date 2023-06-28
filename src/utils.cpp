@@ -121,7 +121,7 @@ SSSP_Result dijkstra(Graph* g, int s) {
     return result;
 }
 
-Graph* induced_graph(Graph* g, set<int> vertices) {
+Graph* induced_graph(Graph* g, set<int>& vertices) {
     Graph* result = new Graph(vertices);
     for (int i : g->V) {
         for (int j : g->edges[i]) {
@@ -141,7 +141,7 @@ set<pair<int, int>> edgesUnion(set<pair<int, int>> a, set<pair<int, int>>& b) {
     return a;
 }
 
-Graph* subtractVertices(Graph* g, set<int> vertices) {
+Graph* subtractVertices(Graph* g, set<int>& vertices) {
     vector<vector<int>> resultAdj(INPUT_N, vector<int>(INPUT_N));
     vector<vector<bool>> resultIsEdge(INPUT_N, vector<bool>(INPUT_N, false));
     vector<vector<int>> resultEdges(INPUT_N, vector<int>());
@@ -165,7 +165,7 @@ Graph* subtractVertices(Graph* g, set<int> vertices) {
     return result;
 }
 
-Graph* subtractEdges(Graph* g, set<pair<int, int>> edges) {
+Graph* subtractEdges(Graph* g, set<pair<int, int>>& edges) {
     Graph* result = new Graph(g->V);
     for (int i : g->V) {
         for (int j : g->edges[i]) {
@@ -188,7 +188,7 @@ set<pair<int, int>> fromGraphToSetOfEdges(Graph* g) {
     return result;
 }
 
-bool isSubset(set<int> a, set<int> b) {
+bool isSubset(set<int>& a, set<int>& b) {
     for (int i:a) {
         if (b.find(i) == b.end())
             return false;
@@ -322,7 +322,7 @@ set<pair<int, int>> edgesMinusEdges(set<pair<int, int>>& a, set<pair<int, int>>&
     return result;
 }
 
-vector<set<int>> topologicalSort(vector<set<int>> SCCs, Graph* graph, vector<int> fromVertixToSCC) {
+vector<set<int>> topologicalSort(vector<set<int>>& SCCs, Graph* graph, vector<int>& fromVertixToSCC) {
 
     vector<vector<int>> sccAdj(SCCs.size(), vector<int>());
     for (int v : graph->V) {
@@ -398,7 +398,7 @@ Graph* addDummySource(Graph* g) {
     return graph;
 }
 
-Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>> SCCs) {
+Graph* onlyEdgesInsideSCCs(Graph* g, vector<set<int>>& SCCs) {
     Graph* graph = new Graph(g->V);
 
     for (int i : graph->V) {

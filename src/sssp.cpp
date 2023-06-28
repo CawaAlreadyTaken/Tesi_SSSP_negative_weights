@@ -427,7 +427,7 @@ SSSP_Result SPmain(Graph* g_in, int s_in) {
     return result;
 }
 
-PriceFunction FixDAGEdges(Graph* graph, vector<set<int>> SCCs) {
+PriceFunction FixDAGEdges(Graph* graph, vector<set<int>>& SCCs) {
     PriceFunction Phi;
     Phi.prices.assign(INPUT_N, 0);
     // Sort SCCs vector in topological order
