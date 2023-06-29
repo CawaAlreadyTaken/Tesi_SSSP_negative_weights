@@ -8,7 +8,7 @@
 import random
 
 S = 1
-N = 600000
+N = 450000
 D = 2  # If more than 2, then we have no "constant out-degree" according to the paper
 X = 10
 P = 0.005
