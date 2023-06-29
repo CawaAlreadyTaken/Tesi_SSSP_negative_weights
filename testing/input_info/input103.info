@@ -1,0 +1,12 @@
+Fileinfo generated automatically by create_graphs.py
+
+____________________________________________________
+Start vertex: 1
+____________________________________________________
+Total vertices number: 300
+____________________________________________________
+Out-degree: 140, total edges number: 42000
+____________________________________________________
+Negative weights probability: 0.005, negative weights number: 214, non-negative weights number: 41786
+____________________________________________________
+Maximum weight possible: 10, average weight: 4.965309523809524

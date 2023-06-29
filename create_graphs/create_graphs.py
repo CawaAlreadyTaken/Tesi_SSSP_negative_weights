@@ -8,8 +8,8 @@
 import random
 
 S = 1
-N = 10000
-D = 2  # If more than 2, then we have no "constant out-degree" according to the paper
+N = 1000
+D = 450
 X = 10
 P = 0.005
 assert D < N
