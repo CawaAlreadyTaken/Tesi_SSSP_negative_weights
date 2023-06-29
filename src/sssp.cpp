@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <random>
 
-pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R) {
+pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, long long R) {
     // In order to do ballIn, we can reverse the edges and call ballOut
     Graph* graph_copy = new Graph(graph->V);
     for (int i : graph->V) {
@@ -15,7 +15,7 @@ pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R) {
     return ballOut(graph_copy, v, R, true);
 }
 
-pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fromBallIn) {
+pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, long long R, bool fromBallIn) {
     // basically dijkstra in order to find vertices closer than R
     auto t1 = high_resolution_clock::now();
     set<int> ris;
@@ -139,7 +139,7 @@ set<pair<int, int>> LDD(Graph* graph, long long D, int depth) {
         auto result = ballIn(graph, v, Rv);
         set<int> newBallIn = result.first;
         set<pair<int, int>> Ebound = result.second;
-        if (Rv > (float)D/4.0 || newBallIn.size() > 0.7*graph->V.size()) {
+        if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
             log(true, depth, "Terminate1?");
             terminateLDD = true;
             set<pair<int, int>> result = fromGraphToSetOfEdges(graph);
@@ -169,7 +169,7 @@ set<pair<int, int>> LDD(Graph* graph, long long D, int depth) {
         auto result = ballOut(graph, v, Rv, false);
         set<int> newBallOut = result.first;
         set<pair<int, int>> Ebound = result.second;
-        if (Rv > (float)D/4.0 || newBallOut.size() > 0.7*graph->V.size()) {
+        if (Rv > D || newBallOut.size() > 0.7*graph->V.size()) {
             log(true, depth, "Terminate2?");
             terminateLDD = true;
             set<pair<int, int>> result = fromGraphToSetOfEdges(graph);

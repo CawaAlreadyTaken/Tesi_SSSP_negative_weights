@@ -16,9 +16,9 @@ SSSP_Result SPmain(Graph* g_in, int s_in);
 PriceFunction scaleDown(Graph* graph, long long delta, long long B, int depth);
 PriceFunction elimNeg(Graph* graph);
 PriceFunction FixDAGEdges(Graph* g, vector<set<int>>& v);
-pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, int R, bool fromBallIn=false);
-pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, int R);
-set<pair<int, int>> LDD(Graph* graph, int D, int depth);
+pair<set<int>, set<pair<int, int>>> ballOut(Graph* graph, int v, long long R, bool fromBallIn=false);
+pair<set<int>, set<pair<int, int>>> ballIn(Graph* graph, int v, long long R);
+set<pair<int, int>> LDD(Graph* graph, long long D, int depth);
 
 #endif
 

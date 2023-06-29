@@ -5,16 +5,16 @@
 
 using namespace std;
 
-vector<int> bellman_ford(int n, vector<pair<int, pair<int, int>>> & edges, int s) {
+vector<long long> bellman_ford(int n, vector<pair<long long, pair<int, int>>> & edges, int s) {
     // Initialize distances
-    vector<int> distances(n, INT32_MAX);
+    vector<long long> distances(n, INT64_MAX);
     distances[s] = 0;
 
     // Relax edges
     for (int i = 0; i < n; i++) {
         for (auto [weight, ft] : edges) {
             auto [from, to] = ft;
-            if (distances[from] != INT32_MAX && distances[to] + weight < distances[to])
+            if (distances[from] != INT64_MAX && distances[to] + weight < distances[to])
                 distances[to] = distances[from] + weight;
         }
     }
@@ -40,15 +40,17 @@ int main() {
     int n, m, s;
     cin >> n >> m >> s;
     n++;
-    vector<pair<int, pair<int, int>>> edges; // {weight, {from, to}}
+    vector<pair<long long, pair<int, int>>> edges; // {weight, {from, to}}
 
     // Receive in input all edges
     for (int i = 0; i < m; i++) {
-        int from, to, weight; cin >> from >> to >> weight;
+        int from, to;
+        long long weight;
+        cin >> from >> to >> weight;
         edges.push_back({weight, {from, to}});
     }
     /* END INPUT */
 
     // Run Bellman-Ford algorithm
-    vector<int> distances = bellman_ford(n, edges, s);
+    vector<long long> distances = bellman_ford(n, edges, s);
 }
