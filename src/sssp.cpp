@@ -139,7 +139,7 @@ set<pair<int, int>> LDD(Graph* graph, long long D, int depth) {
         auto result = ballIn(graph, v, Rv);
         set<int> newBallIn = result.first;
         set<pair<int, int>> Ebound = result.second;
-        if (Rv > D/4 || newBallIn.size() > 0.7*graph->V.size()) {
+        if (Rv > (double)D/4.0 || newBallIn.size() > 0.7*graph->V.size()) {
             log(true, depth, "Terminate1?");
             terminateLDD = true;
             set<pair<int, int>> result = fromGraphToSetOfEdges(graph);
@@ -169,7 +169,7 @@ set<pair<int, int>> LDD(Graph* graph, long long D, int depth) {
         auto result = ballOut(graph, v, Rv, false);
         set<int> newBallOut = result.first;
         set<pair<int, int>> Ebound = result.second;
-        if (Rv > D || newBallOut.size() > 0.7*graph->V.size()) {
+        if (Rv > (double)D/4.0 || newBallOut.size() > 0.7*graph->V.size()) {
             log(true, depth, "Terminate2?");
             terminateLDD = true;
             set<pair<int, int>> result = fromGraphToSetOfEdges(graph);
