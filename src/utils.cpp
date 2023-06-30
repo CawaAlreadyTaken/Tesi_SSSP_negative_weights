@@ -225,14 +225,19 @@ vector<set<int>> computeSCCs(Graph* g, int depth) {
     string s_log = "Graph has " + to_string(g->V.size()) + " vertices";
     log(true, depth, s_log);
     vector<set<int>> result;
+    cout << "a" << endl;
     vector<bool> visited(INPUT_N, false);
+    cout << "b" << endl;
     stack<int> s;
     for (int v : g->V) {
         if (!visited[v])
             DFS(g, v, visited, s);
     }
+    cout << "c" << endl;
     visited.assign(INPUT_N, false);
+    cout << "d" << endl;
     Graph* gT = transpose(g);
+    cout << "e" << endl;
     while (!s.empty()) {
         int v = s.top();
         s.pop();
@@ -242,10 +247,13 @@ vector<set<int>> computeSCCs(Graph* g, int depth) {
             result.push_back(component);
         }
     }
+    cout << "f" << endl;
     s_log = "SCCs computed. SCCs number: " + to_string(result.size());
     log(true, depth, s_log);
     delete gT;
+    cout << "g" << endl;
     delete g;
+    cout << "h" << endl;
     return result;
 }
 
