@@ -121,11 +121,11 @@ set<pair<int, int>> LDD(Graph* graph, long long D, int depth) {
     for (int v : graph->V) {
         if (ballInIntersec[v].size() <= 0.6*k) {
             in_light.insert(v);
-            log(true, depth, to_string(v) + " is in_light, ballInIntersec.size() =  " + to_string(ballInIntersec[v].size()));
+            //log(true, depth, to_string(v) + " is in_light, ballInIntersec.size() =  " + to_string(ballInIntersec[v].size()));
 
         } else if (ballOutIntersec[v].size() <= 0.6*k) {
             out_light.insert(v);
-            log(true, depth, to_string(v) + " is out_light, ballOutIntersec.size() =  " + to_string(ballOutIntersec[v].size()));
+            //log(true, depth, to_string(v) + " is out_light, ballOutIntersec.size() =  " + to_string(ballOutIntersec[v].size()));
         } else
             heavy.insert(v);
     }
