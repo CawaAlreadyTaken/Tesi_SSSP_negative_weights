@@ -271,6 +271,7 @@ Graph* transpose(Graph* g) {
 void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s) {
     visited[v] = true;
     for (int i : g->edges[v]) {
+        cout << i << endl;
         if (!visited[i]) {
             DFS(g, i, visited, s);
         }
