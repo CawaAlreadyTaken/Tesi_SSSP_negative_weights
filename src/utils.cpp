@@ -267,7 +267,6 @@ vector<set<int>> computeSCCs(Graph* g, int depth) {
             result.push_back(component);
         }
     }
-    cout << "f" << endl;
     s_log = "SCCs computed. SCCs number: " + to_string(result.size());
     log(true, depth, s_log);
     delete gT;
@@ -289,7 +288,6 @@ Graph* transpose(Graph* g) {
 void DFS(Graph* g, int v, vector<bool>& visited, stack<int>& s) {
     visited[v] = true;
     for (int i : g->edges[v]) {
-        cout << i << endl;
         if (!visited[i]) {
             DFS(g, i, visited, s);
         }
