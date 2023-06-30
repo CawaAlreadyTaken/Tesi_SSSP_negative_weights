@@ -111,7 +111,7 @@ SSSP_Result dijkstra(Graph* g, int s) {
             }
         }
     }
-    
+
     // Compose result tree
     result.shortest_paths_tree = new Graph(g->V);
     result.shortest_paths_tree->adj = result_adj;
@@ -225,19 +225,39 @@ vector<set<int>> computeSCCs(Graph* g, int depth) {
     string s_log = "Graph has " + to_string(g->V.size()) + " vertices";
     log(true, depth, s_log);
     vector<set<int>> result;
-    cout << "a" << endl;
     vector<bool> visited(INPUT_N, false);
-    cout << "b" << endl;
     stack<int> s;
+    /*
+    stack<int> s1;
+    for (int v : g->V) {
+        if (!visited[v]) {
+            s1.push(v);
+            while (!s1.empty()) {
+                int current = s1.top();
+                s1.pop();
+                if (current < 0) {
+                    s.push(-current);
+                    continue;
+                }
+                s1.push(-v);
+                if (!visited[current]) {
+                    visited[current] = true;
+                    for (int i : g->edges[current]) {
+                        if (!visited[i]) {
+                            s1.push(i);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    */
     for (int v : g->V) {
         if (!visited[v])
             DFS(g, v, visited, s);
     }
-    cout << "c" << endl;
     visited.assign(INPUT_N, false);
-    cout << "d" << endl;
     Graph* gT = transpose(g);
-    cout << "e" << endl;
     while (!s.empty()) {
         int v = s.top();
         s.pop();
@@ -251,9 +271,7 @@ vector<set<int>> computeSCCs(Graph* g, int depth) {
     s_log = "SCCs computed. SCCs number: " + to_string(result.size());
     log(true, depth, s_log);
     delete gT;
-    cout << "g" << endl;
     delete g;
-    cout << "h" << endl;
     return result;
 }
 
@@ -327,7 +345,7 @@ vector<set<int>> topologicalSort(vector<set<int>>& SCCs, Graph* graph, vector<in
 
 void topoDFS(int index, vector<bool>& visited, stack<int>& s, vector<vector<int>>& sccAdj) {
     visited[index] = true;
-    
+
     for (int k : sccAdj[index]) {
         if (!visited[k])
             topoDFS(k, visited, s, sccAdj);
